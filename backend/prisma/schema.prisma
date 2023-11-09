@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  createdAt     DateTime       @default(now())
+  email         String         @unique
+  image         String
+  name          String
+  password      String?
+  provider      Provider
+  conversations Conversation[]
+  messages      Message[]
+  participants  Participant[]
+}
+
+model Conversation {
+  id           Int           @id @default(autoincrement())
+  createdAt    DateTime      @default(now())
+  title        String
+  id_creator   Int
+  avatar_url   Int[]
+  author       User          @relation(fields: [id_creator], references: [id])
+  messages     Message[]
+  participants Participant[]
+}
+
+model Participant {
+  id              Int          @id @default(autoincrement())
+  id_user         Int
+  id_conversation Int
+  dialog          Conversation @relation(fields: [id_conversation], references: [id])
+  member          User         @relation(fields: [id_user], references: [id])
+}
+
+model Message {
+  id                   Int          @id @default(autoincrement())
+  id_sender            Int
+  id_conversation      Int
+  message              String       @db.VarChar(255)
+  type                 Message_type @default(standalone_message)
+  reference_message_id Int
+  attachment_list      Int[]
+  createdAt            DateTime
+  deletedAt            DateTime
+  conversation         Conversation @relation(fields: [id_conversation], references: [id])
+  sender               User         @relation(fields: [id_sender], references: [id])
+}
+
+model MessageReadHistory {
+  id         Int @id @default(autoincrement())
+  id_message Int
+  id_user    Int
+}
+
+model Attachment {
+  id   Int    @id @default(autoincrement())
+  url  String
+  type String
+}
+
+enum Provider {
+  discord
+  google
+  credentials
+}
+
+enum Message_type {
+  standalone_message
+  shared_message
+  answered_message
+}
