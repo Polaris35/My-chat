@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   id            Int            @id @default(autoincrement())
-  createdAt     DateTime       @default(now())
+  createdAt     DateTime       @default(now()) @map("created_at")
   email         String         @unique
   image         String
   name          String
@@ -18,51 +18,74 @@ model User {
   conversations Conversation[]
   messages      Message[]
   participants  Participant[]
+  Token         Token[]
+
+  @@map("users")
+}
+
+model Token {
+  token     String   @unique
+  exp       DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int      @map("user_id")
+  userAgent String   @map("user_agent")
+
+  @@map("tokens")
 }
 
 model Conversation {
   id           Int           @id @default(autoincrement())
-  createdAt    DateTime      @default(now())
+  createdAt    DateTime      @default(now()) @map("created_at")
   title        String
-  id_creator   Int
-  avatar_url   Int[]
-  author       User          @relation(fields: [id_creator], references: [id])
+  idCreator    Int           @map("id_creator")
+  avatarUrl    Int[]         @map("avatar_url")
+  author       User          @relation(fields: [idCreator], references: [id])
   messages     Message[]
   participants Participant[]
+
+  @@map("conversations")
 }
 
 model Participant {
-  id              Int          @id @default(autoincrement())
-  id_user         Int
-  id_conversation Int
-  dialog          Conversation @relation(fields: [id_conversation], references: [id])
-  member          User         @relation(fields: [id_user], references: [id])
+  id             Int          @id @default(autoincrement())
+  idUser         Int          @map("id_user")
+  idConversation Int          @map("id_conversation")
+  dialog         Conversation @relation(fields: [idConversation], references: [id])
+  member         User         @relation(fields: [idUser], references: [id])
+
+  @@map("participants")
 }
 
 model Message {
-  id                   Int          @id @default(autoincrement())
-  id_sender            Int
-  id_conversation      Int
-  message              String       @db.VarChar(255)
-  type                 Message_type @default(standalone_message)
-  reference_message_id Int
-  attachment_list      Int[]
-  createdAt            DateTime
-  deletedAt            DateTime
-  conversation         Conversation @relation(fields: [id_conversation], references: [id])
-  sender               User         @relation(fields: [id_sender], references: [id])
+  id                 Int          @id @default(autoincrement())
+  idSender           Int          @map("id_sender")
+  idConversation     Int          @map("id_conversation")
+  message            String       @db.VarChar(255)
+  type               MessageType  @default(standaloneMessage)
+  referenceMessageId Int          @map("reference_message_id")
+  attachmentList     Int[]        @map("attachment_list")
+  createdAt          DateTime
+  deletedAt          DateTime
+  conversation       Conversation @relation(fields: [idConversation], references: [id])
+  sender             User         @relation(fields: [idSender], references: [id])
+
+  @@map("messages")
 }
 
 model MessageReadHistory {
-  id         Int @id @default(autoincrement())
-  id_message Int
-  id_user    Int
+  id        Int @id @default(autoincrement())
+  idMessage Int @map("id_message")
+  idUser    Int @map("id_user")
+
+  @@map("message_read_history")
 }
 
 model Attachment {
   id   Int    @id @default(autoincrement())
   url  String
   type String
+
+  @@map("attachments")
 }
 
 enum Provider {
@@ -71,8 +94,10 @@ enum Provider {
   credentials
 }
 
-enum Message_type {
-  standalone_message
-  shared_message
-  answered_message
+enum MessageType {
+  standaloneMessage @map("standalone_message")
+  sharedMessage     @map("shared_message")
+  answeredMessage   @map("answered_message")
+
+  @@map("message_type")
 }

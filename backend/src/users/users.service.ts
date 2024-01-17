@@ -1,55 +1,47 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { hash } from 'bcrypt';
-import { Provider, User } from '@prisma/client';
-import { UserResponse } from './dto/user-response.dto';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '@prisma/prisma.service';
+import { genSaltSync, hashSync } from 'bcrypt';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
-  constructor(private prismaService: PrismaService) {}
+    constructor(private readonly prismaService: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserResponse> {
-    let user: UserResponse = await this.prismaService.user.create({
-      data: {
-        name: createUserDto.name,
-        email: createUserDto.email,
-        image: createUserDto.image,
-        password: await hash(createUserDto.password, 10),
-        provider: createUserDto.provider as Provider,
-      },
-    });
+    async save(dto: Partial<User>) {
+        const userPassword = dto.password
+            ? this.hashPassword(dto.password)
+            : null;
+        return await this.prismaService.user.create({
+            data: {
+                name: dto.email,
+                email: dto.email,
+                image: 'default',
+                password: userPassword,
+                provider: 'credentials',
+            },
+        });
+    }
 
-    return user;
-  }
+    async findOne(idOrEmail: number | string) {
+        const whereCondition =
+            typeof idOrEmail === 'number'
+                ? { id: idOrEmail }
+                : { email: idOrEmail };
 
-  async findOne(id: number): Promise<UserResponse> {
-    let user = await this.prismaService.user.findUnique({ where: { id: id } });
-    if (!user) throw new NotFoundException('user not found');
+        return await this.prismaService.user.findFirst({
+            where: {
+                OR: [whereCondition],
+            },
+        });
+    }
 
-    return user;
-  }
+    async remove(id: number) {
+        return await this.prismaService.user.delete({
+            where: { id: id },
+        });
+    }
 
-  async update(
-    id: number,
-    updateUserDto: Partial<User>,
-  ): Promise<UserResponse> {
-    let user = await this.prismaService.user.update({
-      where: { id: id },
-      data: updateUserDto,
-    });
-    if (!user) throw new BadRequestException("can't update user");
-    return user;
-  }
-
-  async remove(id: number): Promise<UserResponse> {
-    let user = await this.prismaService.user.delete({ where: { id: id } });
-    if (!user) throw new NotFoundException('user not found');
-
-    return user;
-  }
+    private hashPassword(password: string) {
+        return hashSync(password, genSaltSync(10));
+    }
 }

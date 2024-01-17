@@ -17,6 +17,9 @@ lerna-debug.log*
 .env
 /.env
 
+.dependency-cruiser.js
+dependency-graph.png
+
 # Tests
 /coverage
 /.nyc_output
