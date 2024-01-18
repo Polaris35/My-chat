@@ -7,10 +7,12 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { options } from './config';
 import { PrismaModule } from '@prisma/prisma.module';
+import { STRATEGIES } from './strategies';
+import { GUARDS } from './guards';
 
 @Module({
     controllers: [AuthController],
-    providers: [AuthService, CookieService],
+    providers: [AuthService, CookieService, ...STRATEGIES, ...GUARDS],
     imports: [
         PrismaModule,
         UsersModule,

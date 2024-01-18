@@ -13,10 +13,11 @@ import { LoginDto, RegisterDto } from './dto';
 import { Tokens } from './interfaces';
 import { ConfigService } from '@nestjs/config';
 import type { Response } from 'express';
-import { Cookie, UserAgent } from '@common/decorators';
+import { Cookie, Public, UserAgent } from '@common/decorators';
 
 const REFRESH_TOKEN = 'refreshtoken';
 
+@Public()
 @Controller('auth')
 export class AuthController {
     constructor(
@@ -80,7 +81,7 @@ export class AuthController {
             path: '/',
         });
         res.status(HttpStatus.CREATED).json({
-            accessToken: tokens.accessToken,
+            accessToken: 'Bearer ' + tokens.accessToken,
         });
     }
 }
