@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { genSaltSync, hashSync } from 'bcrypt';
 import { User } from '@prisma/client';
@@ -22,22 +22,21 @@ export class UsersService {
         });
     }
 
-    async findOne(idOrEmail: number | string) {
-        const whereCondition =
-            typeof idOrEmail === 'number'
-                ? { id: idOrEmail }
-                : { email: idOrEmail };
-
-        return await this.prismaService.user.findFirst({
-            where: {
-                OR: [whereCondition],
-            },
-        });
+    findByEmail(email: string) {
+        return this.prismaService.user.findFirst({ where: { email } });
     }
 
-    async remove(id: number) {
+    async findById(id: number) {
+        return this.prismaService.user.findFirst({ where: { id } });
+    }
+
+    async remove(id: number, userId: number) {
+        if (id !== userId) {
+            throw new ForbiddenException();
+        }
         return await this.prismaService.user.delete({
             where: { id: id },
+            select: { id: true },
         });
     }
 

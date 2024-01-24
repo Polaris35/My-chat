@@ -25,7 +25,7 @@ export class AuthService {
 
     async register(dto: RegisterDto) {
         const user: User = await this.userService
-            .findOne(dto.email)
+            .findByEmail(dto.email)
             .catch((err) => {
                 this.logger.error(err);
                 return null;
@@ -40,7 +40,7 @@ export class AuthService {
     }
     async login(dto: LoginDto, agent: string): Promise<Tokens> {
         const user: User = await this.userService
-            .findOne(dto.email)
+            .findByEmail(dto.email)
             .catch((err) => {
                 this.logger.error(err);
                 return null;
@@ -72,7 +72,7 @@ export class AuthService {
             throw new UnauthorizedException();
         }
 
-        const user = await this.userService.findOne(token.userId);
+        const user = await this.userService.findById(token.userId);
         return this.generateTokens(user, agent);
     }
 
@@ -110,6 +110,11 @@ export class AuthService {
                 userId,
                 userAgent: agent,
             },
+        });
+    }
+    deleteRefreshToken(token: string) {
+        return this.prismaService.token.delete({
+            where: { token },
         });
     }
 }

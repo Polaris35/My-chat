@@ -5,6 +5,8 @@ export const Cookie = createParamDecorator(
         const request = context.switchToHttp().getRequest();
         return key && key in request.cookie
             ? request.cookie[key]
+            : key
+            ? null
             : request.cookie;
     },
 );
