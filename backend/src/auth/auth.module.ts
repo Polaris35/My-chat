@@ -8,6 +8,7 @@ import { options } from './config';
 import { PrismaModule } from '@prisma/prisma.module';
 import { STRATEGIES } from './strategies';
 import { GUARDS } from './guards';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
     controllers: [AuthController],
@@ -17,6 +18,7 @@ import { GUARDS } from './guards';
         UsersModule,
         PassportModule,
         JwtModule.registerAsync(options()),
+        HttpModule,
     ],
 })
 export class AuthModule {}

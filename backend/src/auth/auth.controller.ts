@@ -5,15 +5,19 @@ import {
     Get,
     HttpStatus,
     Post,
+    Query,
+    Req,
     Res,
     UnauthorizedException,
+    UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
 import { Tokens } from './interfaces';
 import { ConfigService } from '@nestjs/config';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { Cookie, Public, UserAgent } from '@common/decorators';
+import { GoogleGuard } from './guards/google.guard';
 
 const REFRESH_TOKEN = 'refreshtoken';
 
@@ -45,7 +49,7 @@ export class AuthController {
             throw new BadRequestException(`Can't login user`);
         }
 
-        this.SetRefreshTokenToCookies(tokens, res);
+        this.setRefreshTokenToCookies(tokens, res);
     }
 
     @Get('logout')
@@ -82,10 +86,10 @@ export class AuthController {
         if (!tokens) {
             throw new UnauthorizedException("Can't update refresh token");
         }
-        this.SetRefreshTokenToCookies(tokens, res);
+        this.setRefreshTokenToCookies(tokens, res);
     }
 
-    private SetRefreshTokenToCookies(tokens: Tokens, res: Response) {
+    private setRefreshTokenToCookies(tokens: Tokens, res: Response) {
         if (!tokens) {
             throw new UnauthorizedException();
         }
@@ -101,5 +105,26 @@ export class AuthController {
         res.status(HttpStatus.CREATED).json({
             accessToken: 'Bearer ' + tokens.accessToken,
         });
+    }
+
+    @UseGuards(GoogleGuard)
+    @Get('google')
+    googleAuth() {}
+
+    @UseGuards(GoogleGuard)
+    @Get('google/callback')
+    googleAuthCallback(@Req() req: Request) {
+        const token = req.user['accessToken'];
+        return token;
+    }
+
+    @Get('google/success')
+    async successGoogleAuth(
+        @Query('token') token: string,
+        @UserAgent() agent: string,
+        @Res() res: Response,
+    ) {
+        const tokens = await this.authService.googleAuth(token, agent);
+        this.setRefreshTokenToCookies(tokens, res);
     }
 }

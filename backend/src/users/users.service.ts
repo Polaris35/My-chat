@@ -1,25 +1,34 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { genSaltSync, hashSync } from 'bcrypt';
-import { User } from '@prisma/client';
+import { Provider, User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
     constructor(private readonly prismaService: PrismaService) {}
 
     async save(dto: Partial<User>) {
-        const userPassword = dto.password
+        const hashedPassword = dto.password
             ? this.hashPassword(dto.password)
             : null;
-        return await this.prismaService.user.create({
-            data: {
-                name: dto.email,
+
+        const savedUser = await this.prismaService.user.upsert({
+            where: {
                 email: dto.email,
-                image: 'default',
-                password: userPassword,
-                provider: 'credentials',
+            },
+            update: {
+                password: hashedPassword ?? undefined,
+                provider: dto?.provider ?? undefined,
+            },
+            create: {
+                email: dto.email,
+                name: dto.name ?? dto.email,
+                password: hashedPassword,
+                image: dto.image ?? 'default',
+                provider: dto.provider,
             },
         });
+        return savedUser;
     }
 
     findByEmail(email: string) {
