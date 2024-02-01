@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { genSaltSync, hashSync } from 'bcrypt';
-import { Provider, User } from '@prisma/client';
+import type { User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {

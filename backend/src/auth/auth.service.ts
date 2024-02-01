@@ -44,7 +44,10 @@ export class AuthService {
             return null;
         });
     }
-    async login(dto: LoginDto, agent: string): Promise<Tokens> {
+    async autorizeWithCredentials(
+        dto: LoginDto,
+        agent: string,
+    ): Promise<Tokens> {
         const user: User = await this.userService
             .findByEmail(dto.email)
             .catch((err) => {
@@ -123,17 +126,21 @@ export class AuthService {
             where: { token },
         });
     }
-    async googleAuth(token: string, agent: string) {
+
+    async autorizeWithProvider(
+        token: string,
+        agent: string,
+        provider: Provider,
+    ) {
         if (await !this.checkTokenValidity(token)) {
             throw new UnauthorizedException('invalid token');
         }
 
         const googleData = await this.getUserData(token);
-        console.log(googleData);
 
         const existUser = await this.userService.findByEmail(googleData.email);
         if (existUser) {
-            if (existUser.provider === Provider.google) {
+            if (existUser.provider === provider) {
                 return this.generateTokens(existUser, agent);
             }
             // переписать описание ошибки
@@ -144,7 +151,7 @@ export class AuthService {
             name: googleData.name,
             email: googleData.email,
             image: googleData.picture,
-            provider: Provider.google,
+            provider,
         });
 
         return this.generateTokens(newUser, agent);

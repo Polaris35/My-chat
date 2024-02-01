@@ -18,6 +18,7 @@ import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import { Cookie, Public, UserAgent } from '@common/decorators';
 import { GoogleGuard } from './guards/google.guard';
+import { Provider } from '@prisma/client';
 
 const REFRESH_TOKEN = 'refreshtoken';
 
@@ -44,7 +45,10 @@ export class AuthController {
         @Res() res: Response,
         @UserAgent() agent: string,
     ) {
-        const tokens = await this.authService.login(dto, agent);
+        const tokens = await this.authService.autorizeWithCredentials(
+            dto,
+            agent,
+        );
         if (!tokens) {
             throw new BadRequestException(`Can't login user`);
         }
@@ -124,7 +128,11 @@ export class AuthController {
         @UserAgent() agent: string,
         @Res() res: Response,
     ) {
-        const tokens = await this.authService.googleAuth(token, agent);
+        const tokens = await this.authService.autorizeWithProvider(
+            token,
+            agent,
+            Provider.google,
+        );
         this.setRefreshTokenToCookies(tokens, res);
     }
 }
