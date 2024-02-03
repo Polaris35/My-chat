@@ -22,7 +22,7 @@ export class TokenService {
             },
         });
 
-        if (!token) {
+        if (!token || new Date(token.exp) < new Date()) {
             throw new UnauthorizedException();
         }
 
@@ -31,9 +31,6 @@ export class TokenService {
                 token: refreshTokens,
             },
         });
-        if (new Date(token.exp) < new Date()) {
-            throw new UnauthorizedException();
-        }
 
         const user = await this.userService.findById(token.userId);
         return this.generateTokens(user, agent);
