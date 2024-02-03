@@ -9,10 +9,17 @@ import { PrismaModule } from '@prisma/prisma.module';
 import { STRATEGIES } from './strategies';
 import { GUARDS } from './guards';
 import { HttpModule } from '@nestjs/axios';
+import { PROVIDERS, ProviderFactory } from './providers';
 
 @Module({
     controllers: [AuthController],
-    providers: [AuthService, ...STRATEGIES, ...GUARDS],
+    providers: [
+        AuthService,
+        ...STRATEGIES,
+        ...GUARDS,
+        ...PROVIDERS,
+        ProviderFactory,
+    ],
     imports: [
         PrismaModule,
         UsersModule,

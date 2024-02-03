@@ -30,7 +30,7 @@ export class AuthController {
         private readonly configService: ConfigService,
     ) {}
     @Post('register')
-    async register(@Body() dto: RegisterDto) {
+    async CredentialsRegister(@Body() dto: RegisterDto) {
         const user = await this.authService.register(dto);
         if (!user) {
             throw new BadRequestException(
@@ -39,8 +39,8 @@ export class AuthController {
         }
     }
 
-    @Post('login')
-    async login(
+    @Post('credentials-login')
+    async credentialsLogin(
         @Body() dto: LoginDto,
         @Res() res: Response,
         @UserAgent() agent: string,

@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     ConflictException,
     Injectable,
     Logger,
@@ -14,9 +13,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '@prisma/prisma.service';
 import { add } from 'date-fns';
 import { v4 } from 'uuid';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-import { GoogleRensponse } from './responses';
+import { ProviderFactory } from './providers/provider.factory';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +22,7 @@ export class AuthService {
         private readonly userService: UsersService,
         private readonly jwtSevice: JwtService,
         private readonly prismaService: PrismaService,
-        private readonly httpService: HttpService,
+        private readonly providerFactory: ProviderFactory,
     ) {}
 
     async register(dto: RegisterDto) {
@@ -130,17 +127,19 @@ export class AuthService {
     async autorizeWithProvider(
         token: string,
         agent: string,
-        provider: Provider,
+        provider_type: Provider,
     ) {
-        if (await !this.checkTokenValidity(token)) {
+        const provider = this.providerFactory.createProvider(provider_type);
+
+        if (await !provider.checkTokenValidity(token)) {
             throw new UnauthorizedException('invalid token');
         }
 
-        const googleData = await this.getUserData(token);
+        const userData = await provider.getUserData(token);
 
-        const existUser = await this.userService.findByEmail(googleData.email);
+        const existUser = await this.userService.findByEmail(userData.email);
         if (existUser) {
-            if (existUser.provider === provider) {
+            if (existUser.provider === provider_type) {
                 return this.generateTokens(existUser, agent);
             }
             // переписать описание ошибки
@@ -148,42 +147,12 @@ export class AuthService {
         }
 
         const newUser = await this.userService.save({
-            name: googleData.name,
-            email: googleData.email,
-            image: googleData.picture,
-            provider,
+            name: userData.name,
+            email: userData.email,
+            image: userData.picture,
+            provider: provider_type,
         });
 
         return this.generateTokens(newUser, agent);
-    }
-
-    async checkTokenValidity(accessToken: string): Promise<boolean> {
-        try {
-            const response = await firstValueFrom(
-                this.httpService.get(
-                    `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${accessToken}`,
-                ),
-            );
-            return response.status === 200;
-        } catch (error) {
-            console.error('Error checking token validity: ', error);
-            return false;
-        }
-    }
-
-    async getUserData(accessToken: string): Promise<GoogleRensponse> {
-        try {
-            const response = await firstValueFrom(
-                this.httpService.get(
-                    `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`,
-                ),
-            );
-            return new GoogleRensponse(response.data);
-        } catch (error) {
-            console.error('Error checking token validity: ', error);
-            throw new BadRequestException(
-                `can't fetch data by token ${accessToken}`,
-            );
-        }
     }
 }
