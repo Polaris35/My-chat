@@ -19,6 +19,7 @@ import type { Request, Response } from 'express';
 import { Cookie, Public, UserAgent } from '@common/decorators';
 import { GoogleGuard } from './guards/google.guard';
 import { Provider } from '@prisma/client';
+import { TokenService } from './token.service';
 
 const REFRESH_TOKEN = 'refreshtoken';
 
@@ -28,6 +29,7 @@ export class AuthController {
     constructor(
         private readonly authService: AuthService,
         private readonly configService: ConfigService,
+        private readonly tokenService: TokenService,
     ) {}
     @Post('register')
     async CredentialsRegister(@Body() dto: RegisterDto) {
@@ -65,7 +67,7 @@ export class AuthController {
             res.sendStatus(HttpStatus.OK);
             return;
         }
-        await this.authService.deleteRefreshToken(refreshTokens);
+        await this.tokenService.deleteRefreshToken(refreshTokens);
         res.cookie(REFRESH_TOKEN, '', {
             httpOnly: true,
             expires: new Date(),
@@ -83,7 +85,7 @@ export class AuthController {
         if (!refreshTokens) {
             throw new UnauthorizedException();
         }
-        const tokens = await this.authService.refreshToken(
+        const tokens = await this.tokenService.refreshToken(
             refreshTokens,
             agent,
         );

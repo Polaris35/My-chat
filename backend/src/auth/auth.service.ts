@@ -8,21 +8,17 @@ import { LoginDto, RegisterDto } from './dto';
 import { UsersService } from '@users/users.service';
 import { Tokens } from './interfaces';
 import { compareSync } from 'bcrypt';
-import { Provider, Token, User } from '@prisma/client';
-import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '@prisma/prisma.service';
-import { add } from 'date-fns';
-import { v4 } from 'uuid';
+import { Provider, User } from '@prisma/client';
 import { ProviderFactory } from './providers/provider.factory';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
     private readonly logger = new Logger(AuthService.name);
     constructor(
         private readonly userService: UsersService,
-        private readonly jwtSevice: JwtService,
-        private readonly prismaService: PrismaService,
         private readonly providerFactory: ProviderFactory,
+        private readonly tokenService: TokenService,
     ) {}
 
     async register(dto: RegisterDto) {
@@ -55,73 +51,7 @@ export class AuthService {
             throw new UnauthorizedException('Incorrect login or password');
         }
 
-        return this.generateTokens(user, agent);
-    }
-
-    async refreshToken(refreshTokens: string, agent: string): Promise<Tokens> {
-        const token = await this.prismaService.token.findUnique({
-            where: {
-                token: refreshTokens,
-            },
-        });
-
-        if (!token) {
-            throw new UnauthorizedException();
-        }
-
-        await this.prismaService.token.delete({
-            where: {
-                token: refreshTokens,
-            },
-        });
-        if (new Date(token.exp) < new Date()) {
-            throw new UnauthorizedException();
-        }
-
-        const user = await this.userService.findById(token.userId);
-        return this.generateTokens(user, agent);
-    }
-
-    private async generateTokens(user: User, agent: string): Promise<Tokens> {
-        const accessToken = this.jwtSevice.sign({
-            id: user.id,
-            email: user.email,
-        });
-        const refreshToken = await this.getRefreshToken(user.id, agent);
-
-        return { accessToken, refreshToken };
-    }
-
-    private async getRefreshToken(
-        userId: number,
-        agent: string,
-    ): Promise<Token> {
-        const _token = await this.prismaService.token.findFirst({
-            where: {
-                userId,
-                userAgent: agent,
-            },
-        });
-
-        const token = _token?.token ?? '';
-        return this.prismaService.token.upsert({
-            where: { token },
-            update: {
-                token: v4(),
-                exp: add(new Date(), { months: 1 }),
-            },
-            create: {
-                token: v4(),
-                exp: add(new Date(), { months: 1 }),
-                userId,
-                userAgent: agent,
-            },
-        });
-    }
-    deleteRefreshToken(token: string) {
-        return this.prismaService.token.delete({
-            where: { token },
-        });
+        return this.tokenService.generateTokens(user, agent);
     }
 
     async autorizeWithProvider(
@@ -140,7 +70,7 @@ export class AuthService {
         const existUser = await this.userService.findByEmail(userData.email);
         if (existUser) {
             if (existUser.provider === provider_type) {
-                return this.generateTokens(existUser, agent);
+                return this.tokenService.generateTokens(existUser, agent);
             }
             // переписать описание ошибки
             throw new UnauthorizedException('user with this email exist');
@@ -153,6 +83,6 @@ export class AuthService {
             provider: provider_type,
         });
 
-        return this.generateTokens(newUser, agent);
+        return this.tokenService.generateTokens(newUser, agent);
     }
 }

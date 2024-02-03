@@ -10,6 +10,7 @@ import { STRATEGIES } from './strategies';
 import { GUARDS } from './guards';
 import { HttpModule } from '@nestjs/axios';
 import { PROVIDERS, ProviderFactory } from './providers';
+import { TokenService } from './token.service';
 
 @Module({
     controllers: [AuthController],
@@ -19,6 +20,7 @@ import { PROVIDERS, ProviderFactory } from './providers';
         ...GUARDS,
         ...PROVIDERS,
         ProviderFactory,
+        TokenService,
     ],
     imports: [
         PrismaModule,

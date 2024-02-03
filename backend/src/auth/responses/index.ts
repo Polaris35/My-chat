@@ -1,1 +1,1 @@
-export * from './google.response';
+export * from './provider-data.response';
