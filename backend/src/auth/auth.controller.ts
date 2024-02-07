@@ -31,7 +31,7 @@ export class AuthController {
         private readonly configService: ConfigService,
         private readonly tokenService: TokenService,
     ) {}
-    @Post('register')
+    @Post('credentials/register')
     async CredentialsRegister(@Body() dto: RegisterDto) {
         const user = await this.authService.register(dto);
         if (!user) {
@@ -41,15 +41,16 @@ export class AuthController {
         }
     }
 
-    @Post('credentials-login')
+    @Post('credentials/login')
     async credentialsLogin(
         @Body() dto: LoginDto,
         @Res() res: Response,
         @UserAgent() agent: string,
     ) {
-        const tokens = await this.authService.autorizeWithCredentials(
+        const tokens = await this.authService.autorize(
             dto,
             agent,
+            Provider.credentials,
         );
         if (!tokens) {
             throw new BadRequestException(`Can't login user`);
@@ -130,7 +131,7 @@ export class AuthController {
         @UserAgent() agent: string,
         @Res() res: Response,
     ) {
-        const tokens = await this.authService.autorizeWithProvider(
+        const tokens = await this.authService.autorize(
             token,
             agent,
             Provider.google,

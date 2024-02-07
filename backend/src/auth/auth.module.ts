@@ -9,7 +9,7 @@ import { PrismaModule } from '@prisma/prisma.module';
 import { STRATEGIES } from './strategies';
 import { GUARDS } from './guards';
 import { HttpModule } from '@nestjs/axios';
-import { PROVIDERS, ProviderFactory } from './providers';
+import { PROVIDERS, AuthProviderFactory } from './providers';
 import { TokenService } from './token.service';
 
 @Module({
@@ -19,7 +19,7 @@ import { TokenService } from './token.service';
         ...STRATEGIES,
         ...GUARDS,
         ...PROVIDERS,
-        ProviderFactory,
+        AuthProviderFactory,
         TokenService,
     ],
     imports: [

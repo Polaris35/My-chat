@@ -1,4 +1,6 @@
+import { LoginDto } from '@auth/dto';
+import type { User } from '@prisma/client';
+
 export interface Provider {
-    getUserData(token: string): Promise<any>;
-    checkTokenValidity(token: string): Promise<boolean>;
+    autorize(dtoOrAccessToken: LoginDto | string): Promise<User>;
 }
