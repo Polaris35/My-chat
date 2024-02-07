@@ -73,7 +73,7 @@ export class AuthService {
                 return this.tokenService.generateTokens(existUser, agent);
             }
             // переписать описание ошибки
-            throw new UnauthorizedException('user with this email exist');
+            throw new ConflictException('user with this email exist');
         }
 
         const newUser = await this.userService.save({

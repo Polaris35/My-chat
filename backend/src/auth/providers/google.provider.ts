@@ -5,7 +5,16 @@ import { BadRequestException } from '@nestjs/common';
 import { ResponseProviderData } from '@auth/responses';
 
 export class GoogleProvider implements Provider {
-    constructor(private readonly httpService: HttpService) {}
+    private static instance: Provider;
+    private constructor(private readonly httpService: HttpService) {}
+
+    // FIXME: поправить сингелтон
+    // public static getInstance(httpService: HttpService): GoogleProvider {
+    //     if (!GoogleProvider.instance) {
+    //         GoogleProvider.instance = new GoogleProvider(httpService);
+    //     }
+    //     return GoogleProvider.instance;
+    // }
 
     async getUserData(token: string): Promise<any> {
         try {

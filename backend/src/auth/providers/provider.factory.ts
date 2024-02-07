@@ -6,11 +6,12 @@ import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class ProviderFactory {
-    constructor(private readonly httpService: HttpService) {} // Инжектируем HttpService в конструктор
+    constructor(private readonly httpService: HttpService) {}
     createProvider(provider: PrismaProvider): Provider {
         switch (provider) {
             case PrismaProvider.google: {
-                return new GoogleProvider(this.httpService);
+                //TODO: сделать сингелтон
+                return GoogleProvider.getInstance(this.httpService);
             }
             case PrismaProvider.discord: {
             }

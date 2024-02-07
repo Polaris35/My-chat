@@ -5,6 +5,7 @@ import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+    app.setGlobalPrefix('api');
 
     const config = new DocumentBuilder()
         .setTitle('Chat example')
@@ -15,7 +16,6 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
     app.use(cookieParser());
-    app.setGlobalPrefix('api');
     await app.listen(3000);
 }
 
