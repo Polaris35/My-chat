@@ -26,8 +26,8 @@ model User {
 model Token {
   token     String   @unique
   exp       DateTime
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int      @map("user_id")
+  user      User     @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  idUser    Int      @map("id_user")
   userAgent String   @map("user_agent")
 
   @@map("tokens")
@@ -62,7 +62,7 @@ model Message {
   idConversation     Int          @map("id_conversation")
   message            String       @db.VarChar(255)
   type               MessageType  @default(standaloneMessage)
-  referenceMessageId Int          @map("reference_message_id")
+  idReferenceMessage Int          @map("id_reference_message")
   attachmentList     Int[]        @map("attachment_list")
   createdAt          DateTime
   deletedAt          DateTime

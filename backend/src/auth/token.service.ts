@@ -32,7 +32,7 @@ export class TokenService {
             },
         });
 
-        const user = await this.userService.findById(token.userId);
+        const user = await this.userService.findById(token.idUser);
         return this.generateTokens(user, agent);
     }
 
@@ -46,10 +46,10 @@ export class TokenService {
         return { accessToken, refreshToken };
     }
 
-    async getRefreshToken(userId: number, agent: string): Promise<Token> {
+    async getRefreshToken(idUser: number, agent: string): Promise<Token> {
         const _token = await this.prismaService.token.findFirst({
             where: {
-                userId,
+                idUser,
                 userAgent: agent,
             },
         });
@@ -64,7 +64,7 @@ export class TokenService {
             create: {
                 token: v4(),
                 exp: add(new Date(), { months: 1 }),
-                userId,
+                idUser,
                 userAgent: agent,
             },
         });
