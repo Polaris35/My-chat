@@ -31,6 +31,7 @@ export class AuthController {
         private readonly configService: ConfigService,
         private readonly tokenService: TokenService,
     ) {}
+
     @Post('credentials/register')
     async CredentialsRegister(@Body() dto: RegisterDto) {
         const user = await this.authService.register(dto);

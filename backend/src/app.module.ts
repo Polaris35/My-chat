@@ -5,6 +5,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
+import { EventsModule } from './events/events.module';
+// import { MessagingModule } from './messaging/messaging.module';
 
 @Module({
     imports: [
@@ -14,6 +16,8 @@ import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
         ConfigModule.forRoot({
             isGlobal: true,
         }),
+        EventsModule,
+        // MessagingModule,
     ],
     providers: [
         {
