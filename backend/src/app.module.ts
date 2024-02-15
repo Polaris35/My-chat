@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { EventsModule } from './events/events.module';
-// import { MessagingModule } from './messaging/messaging.module';
+import { MessagingModule } from './messaging/messaging.module';
 
 @Module({
     imports: [
@@ -17,7 +17,7 @@ import { EventsModule } from './events/events.module';
             isGlobal: true,
         }),
         EventsModule,
-        // MessagingModule,
+        MessagingModule,
     ],
     providers: [
         {
