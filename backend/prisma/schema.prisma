@@ -99,6 +99,7 @@ enum MessageType {
   standaloneMessage @map("standalone_message")
   sharedMessage     @map("shared_message")
   answeredMessage   @map("answered_message")
+  systemMessage     @map("system_message")
 
   @@map("message_type")
 }
