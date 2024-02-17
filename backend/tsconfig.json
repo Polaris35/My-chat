@@ -36,6 +36,20 @@
       "@auth/*": [
         "src/auth/*"
       ],
+      "@messaging": [
+        "src/messaging"
+      ],
+      "@messaging/*": [
+        "src/messaging/*"
+      ],
+
+      "@events": [
+        "src/events"
+      ],
+      "@events/*": [
+        "src/events/*"
+      ],
+
       "@common": [
         "libs/common/src"
       ],

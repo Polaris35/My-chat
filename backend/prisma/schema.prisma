@@ -34,12 +34,13 @@ model Token {
 }
 
 model Conversation {
-  id           Int           @id @default(autoincrement())
-  createdAt    DateTime      @default(now()) @map("created_at")
+  id           Int              @id @default(autoincrement())
+  createdAt    DateTime         @default(now()) @map("created_at")
   title        String
-  creatorId    Int           @map("creator_id")
-  avatarUrl    Int[]         @map("avatar_url")
-  author       User          @relation(fields: [creatorId], references: [id])
+  creatorId    Int              @map("creator_id")
+  avatarUrl    Int[]            @map("avatar_url")
+  type         ConversationType @default(PRIVATE)
+  author       User             @relation(fields: [creatorId], references: [id])
   participants Participant[]
   Message      Message[]
 
@@ -47,10 +48,11 @@ model Conversation {
 }
 
 model Participant {
-  userId         Int          @map("user_id")
-  conversationId Int          @map("conversation_id")
-  dialog         Conversation @relation(fields: [conversationId], references: [id])
-  member         User         @relation(fields: [userId], references: [id])
+  userId         Int             @map("user_id")
+  conversationId Int             @map("conversation_id")
+  role           ParticipantRole @default(USER)
+  dialog         Conversation    @relation(fields: [conversationId], references: [id])
+  member         User            @relation(fields: [userId], references: [id])
 
   @@id([userId, conversationId])
   @@map("participants")
@@ -59,7 +61,7 @@ model Participant {
 model Message {
   id                 Int         @id @default(autoincrement())
   message            String      @db.VarChar(255)
-  type               MessageType @default(standaloneMessage)
+  type               MessageType @default(STANDALONE_MESSAGE)
   referenceMessageId Int?        @default(-1) @map("reference_message_id")
   attachmentList     Int[]       @map("attachment_list")
   createdAt          DateTime    @default(now()) @map("created_at")
@@ -90,16 +92,29 @@ model Attachment {
 }
 
 enum Provider {
-  discord
-  google
-  credentials
+  DISCORD
+  GOOGLE
+  CREDENTIALS
 }
 
 enum MessageType {
-  standaloneMessage @map("standalone_message")
-  sharedMessage     @map("shared_message")
-  answeredMessage   @map("answered_message")
-  systemMessage     @map("system_message")
+  STANDALONE_MESSAGE
+  SHARED_MESSAGE
+  ANSWERED_MESSAGE
+  SYSTEM_MESSAGE
 
   @@map("message_type")
+}
+
+enum ParticipantRole {
+  USER
+  MODERATOR
+  ADMIN
+
+  @@map("participant_role")
+}
+
+enum ConversationType {
+  PRIVATE
+  GROUP
 }

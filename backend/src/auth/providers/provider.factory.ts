@@ -14,17 +14,16 @@ export class AuthProviderFactory {
     ) {}
     createProvider(provider: PrismaProvider): Provider {
         switch (provider) {
-            case PrismaProvider.credentials: {
+            case PrismaProvider.CREDENTIALS: {
                 return CredentialsProvider.getInstance(this.userService);
             }
-            case PrismaProvider.google: {
-                //TODO: сделать сингелтон
+            case PrismaProvider.GOOGLE: {
                 return GoogleProvider.getInstance(
                     this.httpService,
                     this.userService,
                 );
             }
-            case PrismaProvider.discord: {
+            case PrismaProvider.DISCORD: {
             }
             default: {
                 throw new Error('Provider not supported');

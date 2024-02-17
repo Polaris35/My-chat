@@ -20,8 +20,7 @@ import { Cookie, Public, UserAgent } from '@common/decorators';
 import { GoogleGuard } from './guards/google.guard';
 import { Provider } from '@prisma/client';
 import { TokenService } from './token.service';
-
-const REFRESH_TOKEN = 'refreshtoken';
+import { REFRESH_TOKEN_HEADER } from 'src/constants';
 
 @Public()
 @Controller('auth')
@@ -51,7 +50,7 @@ export class AuthController {
         const tokens = await this.authService.autorize(
             dto,
             agent,
-            Provider.credentials,
+            Provider.CREDENTIALS,
         );
         if (!tokens) {
             throw new BadRequestException(`Can't login user`);
@@ -62,7 +61,7 @@ export class AuthController {
 
     @Get('logout')
     async logout(
-        @Cookie(REFRESH_TOKEN) refreshTokens: string,
+        @Cookie(REFRESH_TOKEN_HEADER) refreshTokens: string,
         @Res() res: Response,
     ) {
         if (!refreshTokens) {
@@ -70,7 +69,7 @@ export class AuthController {
             return;
         }
         await this.tokenService.deleteRefreshToken(refreshTokens);
-        res.cookie(REFRESH_TOKEN, '', {
+        res.cookie(REFRESH_TOKEN_HEADER, '', {
             httpOnly: true,
             expires: new Date(),
             secure: true,
@@ -80,7 +79,7 @@ export class AuthController {
 
     @Get('refresh-tokens')
     async refreshTokens(
-        @Cookie(REFRESH_TOKEN) refreshTokens: string,
+        @Cookie(REFRESH_TOKEN_HEADER) refreshTokens: string,
         @Res() res: Response,
         @UserAgent() agent: string,
     ) {
@@ -101,7 +100,7 @@ export class AuthController {
         if (!tokens) {
             throw new UnauthorizedException();
         }
-        res.cookie(REFRESH_TOKEN, tokens.refreshToken.token, {
+        res.cookie(REFRESH_TOKEN_HEADER, tokens.refreshToken.token, {
             httpOnly: true,
             sameSite: 'lax',
             expires: new Date(tokens.refreshToken.exp),
@@ -135,7 +134,7 @@ export class AuthController {
         const tokens = await this.authService.autorize(
             token,
             agent,
-            Provider.google,
+            Provider.GOOGLE,
         );
         this.setRefreshTokenToCookies(tokens, res);
     }

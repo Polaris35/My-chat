@@ -2,6 +2,8 @@ import { firstValueFrom } from 'rxjs';
 import { Provider } from './provider.interface';
 import { HttpService } from '@nestjs/axios';
 import {
+    UseInterceptors,
+    ClassSerializerInterceptor,
     BadRequestException,
     ConflictException,
     UnauthorizedException,
@@ -40,7 +42,7 @@ export class GoogleProvider implements Provider {
 
         const existUser = await this.userService.findByEmail(userData.email);
         if (existUser) {
-            if (existUser.provider === PrismaProvider.google) {
+            if (existUser.provider === PrismaProvider.GOOGLE) {
                 return existUser;
             }
 
@@ -51,12 +53,13 @@ export class GoogleProvider implements Provider {
             name: userData.name,
             email: userData.email,
             image: userData.picture,
-            provider: PrismaProvider.google,
+            provider: PrismaProvider.GOOGLE,
         });
 
         return newUser;
     }
 
+    @UseInterceptors(ClassSerializerInterceptor)
     private async getUserData(token: string): Promise<any> {
         try {
             const response = await firstValueFrom(
@@ -64,7 +67,6 @@ export class GoogleProvider implements Provider {
                     `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`,
                 ),
             );
-            // TODO: исправить ResponseProviderData что бы возвращал только нужные поля
             return new ResponseProviderData(response.data);
         } catch (error) {
             console.error('Error checking google token validity: ', error);

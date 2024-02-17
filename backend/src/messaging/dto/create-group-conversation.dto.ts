@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class CreateConversationDto {
+export class CreateGroupConversationDto {
     @ApiProperty({
         name: 'title',
         description: 'Conversation title',

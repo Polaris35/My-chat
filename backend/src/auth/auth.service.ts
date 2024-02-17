@@ -24,7 +24,7 @@ export class AuthService {
         if (user) {
             throw new ConflictException('user with this email exist');
         }
-        const dtoWithProvider = { ...dto, provider: Provider.credentials };
+        const dtoWithProvider = { ...dto, provider: Provider.CREDENTIALS };
         return this.userService.save(dtoWithProvider).catch((err) => {
             this.logger.error(err);
             return null;
