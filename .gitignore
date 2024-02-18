@@ -1,2 +1,5 @@
 /backend/.env
 .env
+.vscode
+.turbo
+node_modules

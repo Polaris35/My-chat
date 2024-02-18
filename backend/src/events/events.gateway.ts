@@ -16,7 +16,7 @@ import { Server, Socket } from 'socket.io';
 import { ConversationsService } from '@messaging/conversations.service';
 import { CreateGroupConversationDto, CreateMessageDto } from '@messaging/dto';
 import { MessagesService } from '@messaging/messages.service';
-import { CurrentUser, WsCurrentUser } from '@common/decorators';
+import { WsCurrentUser } from '@common/decorators';
 import { JwtPayload } from '@auth/interfaces';
 
 @WebSocketGateway({ namespace: 'events' })
