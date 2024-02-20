@@ -1,0 +1,141 @@
+openapi: 3.0.0
+paths:
+  /api/users/find/by-id/{id}:
+    get:
+      operationId: UsersController_findById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+  /api/users/find/by-email/{email}:
+    get:
+      operationId: UsersController_findByEmail
+      parameters:
+        - name: email
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+  /api/users/{id}:
+    delete:
+      operationId: UsersController_remove
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+  /api/auth/credentials/register:
+    post:
+      operationId: AuthController_CredentialsRegister
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDto'
+      responses:
+        '201':
+          description: ''
+  /api/auth/credentials/login:
+    post:
+      operationId: AuthController_credentialsLogin
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        '201':
+          description: ''
+  /api/auth/logout:
+    get:
+      operationId: AuthController_logout
+      parameters: []
+      responses:
+        '200':
+          description: ''
+  /api/auth/refresh-tokens:
+    get:
+      operationId: AuthController_refreshTokens
+      parameters: []
+      responses:
+        '200':
+          description: ''
+  /api/auth/google:
+    get:
+      operationId: AuthController_googleAuth
+      parameters: []
+      responses:
+        '200':
+          description: ''
+  /api/auth/google/callback:
+    get:
+      operationId: AuthController_googleAuthCallback
+      parameters: []
+      responses:
+        '200':
+          description: ''
+  /api/auth/google/success:
+    get:
+      operationId: AuthController_successGoogleAuth
+      parameters:
+        - name: token
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+info:
+  title: Chat example
+  description: The chat API description
+  version: '1.0'
+  contact: {}
+tags: []
+servers: []
+components:
+  schemas:
+    RegisterDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: ikozluk160@gmail.com
+        password:
+          type: string
+          example: '12345'
+        passwordRepeat:
+          type: string
+          example: '12345'
+      required:
+        - email
+        - password
+        - passwordRepeat
+    LoginDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: ikozluk160@gmail.com
+        password:
+          type: string
+          example: '12345'
+      required:
+        - email
+        - password
