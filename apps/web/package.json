@@ -8,16 +8,28 @@
     "start": "next start -p 3001",
     "lint": "next lint",
     "api:download": "wget http://localhost:3000/api-yaml -O ./src/shared/api/schema.yaml",
-    "api:generate": "orval"
+    "api:generate": "orval",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "axios": "^1.6.7",
+    "clsx": "^2.1.0",
     "next": "14.1.0",
     "react": "^18",
     "react-dom": "^18",
     "react-hot-toast": "^2.4.1"
   },
   "devDependencies": {
+    "@storybook/addon-essentials": "^7.6.17",
+    "@storybook/addon-interactions": "^7.6.17",
+    "@storybook/addon-links": "^7.6.17",
+    "@storybook/addon-onboarding": "1.0.11",
+    "@storybook/addon-themes": "7.6.17",
+    "@storybook/blocks": "^7.6.17",
+    "@storybook/nextjs": "^7.6.17",
+    "@storybook/react": "^7.6.17",
+    "@storybook/test": "^7.6.17",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -25,9 +37,11 @@
     "daisyui": "^4.7.2",
     "eslint": "^8",
     "eslint-config-next": "14.1.0",
+    "eslint-plugin-storybook": "^0.8.0",
     "orval": "^6.25.0",
     "postcss": "^8",
     "prettier": "3.2.5",
+    "storybook": "^7.6.17",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
