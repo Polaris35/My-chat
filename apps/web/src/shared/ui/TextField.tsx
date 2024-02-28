@@ -16,14 +16,14 @@ export function TextField({
     placeholder,
 }: TextFieldProps) {
     return (
-        <label className="form-control w-full max-w-xs">
+        <label className={clsx(className, 'form-control')}>
             <div className="label">
                 <span className="label-text">{label}</span>
             </div>
             <input
                 type="text"
                 placeholder={placeholder}
-                className={clsx(className, 'input input-bordered')}
+                className="input input-bordered"
                 onChange={(e) => onChange(e.target.value)}
                 value={value}
             />

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Avatar } from '../Avatar';
+import avatarImg from './public/avatar-image.png';
 
 const meta: Meta<typeof Avatar> = {
     component: Avatar,
@@ -12,7 +13,7 @@ type Story = StoryObj<typeof Avatar>;
 
 export const Small: Story = {
     args: {
-        url: 'https://buffer.com/cdn-cgi/image/w=1000,fit=contain,q=90,f=auto/library/content/images/size/w600/2023/10/free-images.jpg',
+        url: avatarImg.src,
         alt: 'small avatar',
         size: 'small',
     },
@@ -20,7 +21,7 @@ export const Small: Story = {
 
 export const Medium: Story = {
     args: {
-        url: 'https://buffer.com/cdn-cgi/image/w=1000,fit=contain,q=90,f=auto/library/content/images/size/w600/2023/10/free-images.jpg',
+        url: avatarImg.src,
         alt: 'medium avatar',
         size: 'medium',
     },
@@ -28,7 +29,7 @@ export const Medium: Story = {
 
 export const Large: Story = {
     args: {
-        url: 'https://buffer.com/cdn-cgi/image/w=1000,fit=contain,q=90,f=auto/library/content/images/size/w600/2023/10/free-images.jpg',
+        url: avatarImg.src,
         alt: 'large avatar',
         size: 'large',
     },

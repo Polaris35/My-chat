@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 type AvatarSize = 'small' | 'medium' | 'large';
 export interface AvatarProps {
@@ -16,8 +17,8 @@ export function Avatar({ url, size, alt }: AvatarProps) {
     return (
         <div className="avatar">
             <div className={`${pxSize} rounded-full`}>
-                {/* TODO: заменить на next/image */}
-                <img src={url} alt={alt} />
+                {/* TODO: сделать лоад с бекенда по айдишнику атачмента */}
+                <Image src={url} width={256} height={256} alt={alt!} />
             </div>
         </div>
     );

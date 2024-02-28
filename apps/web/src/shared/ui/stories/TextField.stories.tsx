@@ -12,7 +12,8 @@ type Story = StoryObj<typeof TextField>;
 
 export const Basic: Story = {
     args: {
-        label: 'text input',
+        label: 'text input label',
         placeholder: 'Placeholder',
+        className: 'w-full max-w-xs',
     },
 };

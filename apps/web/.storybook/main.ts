@@ -16,12 +16,13 @@ const config: StorybookConfig = {
         getAbsolutePath('@storybook/addon-essentials'),
         getAbsolutePath('@storybook/addon-onboarding'),
         getAbsolutePath('@storybook/addon-interactions'),
-        '@storybook/addon-themes'
+        '@storybook/addon-themes',
     ],
     framework: {
         name: getAbsolutePath('@storybook/nextjs'),
         options: {},
     },
+    staticDirs: ['../src/shared/ui/stories/public'], //👈 Configures the static asset folder in Storybook
     docs: {
         autodocs: 'tag',
     },
