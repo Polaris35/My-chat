@@ -20,7 +20,7 @@ import { Cookie, Public, UserAgent } from '@common/decorators';
 import { GoogleGuard } from './guards/google.guard';
 import { Provider } from '@prisma/client';
 import { TokenService } from './token.service';
-import { REFRESH_TOKEN_HEADER } from 'src/constants';
+import { COOKIE } from 'src/constants';
 
 @Public()
 @Controller('auth')
@@ -56,12 +56,12 @@ export class AuthController {
             throw new BadRequestException(`Can't login user`);
         }
 
-        this.setRefreshTokenToCookies(tokens, res);
+        this.setTokensToCookies(tokens, res);
     }
 
     @Get('logout')
     async logout(
-        @Cookie(REFRESH_TOKEN_HEADER) refreshTokens: string,
+        @Cookie(COOKIE.REFRESH_TOKEN) refreshTokens: string,
         @Res() res: Response,
     ) {
         if (!refreshTokens) {
@@ -69,7 +69,7 @@ export class AuthController {
             return;
         }
         await this.tokenService.deleteRefreshToken(refreshTokens);
-        res.cookie(REFRESH_TOKEN_HEADER, '', {
+        res.cookie(COOKIE.REFRESH_TOKEN, '', {
             httpOnly: true,
             expires: new Date(),
             secure: true,
@@ -79,7 +79,7 @@ export class AuthController {
 
     @Get('refresh-tokens')
     async refreshTokens(
-        @Cookie(REFRESH_TOKEN_HEADER) refreshTokens: string,
+        @Cookie(COOKIE.REFRESH_TOKEN) refreshTokens: string,
         @Res() res: Response,
         @UserAgent() agent: string,
     ) {
@@ -93,14 +93,14 @@ export class AuthController {
         if (!tokens) {
             throw new UnauthorizedException("Can't update refresh token");
         }
-        this.setRefreshTokenToCookies(tokens, res);
+        this.setTokensToCookies(tokens, res);
     }
 
-    private setRefreshTokenToCookies(tokens: Tokens, res: Response) {
+    private setTokensToCookies(tokens: Tokens, res: Response) {
         if (!tokens) {
             throw new UnauthorizedException();
         }
-        res.cookie(REFRESH_TOKEN_HEADER, tokens.refreshToken.token, {
+        res.cookie(COOKIE.REFRESH_TOKEN, tokens.refreshToken.token, {
             httpOnly: true,
             sameSite: 'lax',
             expires: new Date(tokens.refreshToken.exp),
@@ -109,9 +109,21 @@ export class AuthController {
                 'production',
             path: '/',
         });
-        res.status(HttpStatus.CREATED).json({
-            accessToken: 'Bearer ' + tokens.accessToken,
+
+        const accessToken = this.tokenService.getDataFromAccessToken(
+            tokens.accessToken,
+        );
+
+        res.cookie(COOKIE.ACCESS_TOKEN, tokens.accessToken, {
+            httpOnly: true,
+            sameSite: 'lax',
+            expires: new Date(new Date().getTime() + accessToken.exp),
+            secure:
+                this.configService.get('NODE_ENV', 'development') ===
+                'production',
+            path: '/',
         });
+        res.status(HttpStatus.CREATED).send();
     }
 
     @UseGuards(GoogleGuard)
@@ -136,6 +148,6 @@ export class AuthController {
             agent,
             Provider.GOOGLE,
         );
-        this.setRefreshTokenToCookies(tokens, res);
+        this.setTokensToCookies(tokens, res);
     }
 }

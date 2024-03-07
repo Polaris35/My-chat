@@ -7,6 +7,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
 import { EventsModule } from './events/events.module';
 import { MessagingModule } from '@messaging/messaging.module';
+import { JwtModule } from '@nestjs/jwt';
+import { options } from '@auth/config';
 
 @Module({
     imports: [
@@ -17,6 +19,7 @@ import { MessagingModule } from '@messaging/messaging.module';
         ConfigModule.forRoot({
             isGlobal: true,
         }),
+        JwtModule.registerAsync(options()),
         EventsModule,
     ],
     providers: [

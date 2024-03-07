@@ -1,1 +1,4 @@
-export const REFRESH_TOKEN_HEADER = 'refreshtoken';
+export const COOKIE = {
+    REFRESH_TOKEN: 'refresh-token',
+    ACCESS_TOKEN: 'access-token',
+};

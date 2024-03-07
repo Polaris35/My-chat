@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { Tokens } from './interfaces';
 import { UsersService } from '@users/users.service';
@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class TokenService {
+    logger = new Logger(TokenService.name);
     constructor(
         private readonly prismaService: PrismaService,
         private readonly userService: UsersService,
@@ -37,10 +38,12 @@ export class TokenService {
     }
 
     async generateTokens(user: User, agent: string): Promise<Tokens> {
-        const accessToken = this.jwtService.sign({
+        const accessToken = await this.jwtService.signAsync({
             id: user.id,
             email: user.email,
         });
+
+        // this.logger.log(this.getDataFromAccessToken(accessToken));
         const refreshToken = await this.getRefreshToken(user.id, agent);
 
         return { accessToken, refreshToken };
@@ -68,6 +71,11 @@ export class TokenService {
                 userAgent: agent,
             },
         });
+    }
+
+    getDataFromAccessToken(token: string) {
+        const payload = this.jwtService.decode(token);
+        return payload;
     }
 
     deleteRefreshToken(token: string) {
