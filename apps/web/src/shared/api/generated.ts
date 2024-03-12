@@ -29,7 +29,7 @@ export const usersControllerFindById = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/api/users/find/by-id/${id}`, method: 'GET' },
+        { url: `/apis/users/find/by-id/${id}`, method: 'GET' },
         options,
     );
 };
@@ -39,9 +39,15 @@ export const usersControllerFindByEmail = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/api/users/find/by-email/${email}`, method: 'GET' },
+        { url: `/apis/users/find/by-email/${email}`, method: 'GET' },
         options,
     );
+};
+
+export const usersControllerMe = (
+    options?: SecondParameter<typeof createInstance>,
+) => {
+    return createInstance({ url: `/apis/users/me`, method: 'GET' }, options);
 };
 
 export const usersControllerRemove = (
@@ -49,7 +55,7 @@ export const usersControllerRemove = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/api/users/${id}`, method: 'DELETE' },
+        { url: `/apis/users/${id}`, method: 'DELETE' },
         options,
     );
 };
@@ -60,7 +66,7 @@ export const authControllerCredentialsRegister = (
 ) => {
     return createInstance<void>(
         {
-            url: `/api/auth/credentials/register`,
+            url: `/apis/auth/credentials/register`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: registerDto,
@@ -75,7 +81,7 @@ export const authControllerCredentialsLogin = (
 ) => {
     return createInstance<void>(
         {
-            url: `/api/auth/credentials/login`,
+            url: `/apis/auth/credentials/login`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: loginDto,
@@ -88,7 +94,7 @@ export const authControllerLogout = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/api/auth/logout`, method: 'GET' },
+        { url: `/apis/auth/logout`, method: 'GET' },
         options,
     );
 };
@@ -97,7 +103,7 @@ export const authControllerRefreshTokens = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/api/auth/refresh-tokens`, method: 'GET' },
+        { url: `/apis/auth/refresh-tokens`, method: 'GET' },
         options,
     );
 };
@@ -106,7 +112,7 @@ export const authControllerGoogleAuth = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/api/auth/google`, method: 'GET' },
+        { url: `/apis/auth/google`, method: 'GET' },
         options,
     );
 };
@@ -115,7 +121,7 @@ export const authControllerGoogleAuthCallback = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/api/auth/google/callback`, method: 'GET' },
+        { url: `/apis/auth/google/callback`, method: 'GET' },
         options,
     );
 };
@@ -125,7 +131,7 @@ export const authControllerSuccessGoogleAuth = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/api/auth/google/success`, method: 'GET', params },
+        { url: `/apis/auth/google/success`, method: 'GET', params },
         options,
     );
 };
@@ -135,6 +141,9 @@ export type UsersControllerFindByIdResult = NonNullable<
 >;
 export type UsersControllerFindByEmailResult = NonNullable<
     Awaited<ReturnType<typeof usersControllerFindByEmail>>
+>;
+export type UsersControllerMeResult = NonNullable<
+    Awaited<ReturnType<typeof usersControllerMe>>
 >;
 export type UsersControllerRemoveResult = NonNullable<
     Awaited<ReturnType<typeof usersControllerRemove>>

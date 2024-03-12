@@ -1,6 +1,6 @@
 openapi: 3.0.0
 paths:
-  /api/users/find/by-id/{id}:
+  /apis/users/find/by-id/{id}:
     get:
       operationId: UsersController_findById
       parameters:
@@ -12,7 +12,7 @@ paths:
       responses:
         '200':
           description: ''
-  /api/users/find/by-email/{email}:
+  /apis/users/find/by-email/{email}:
     get:
       operationId: UsersController_findByEmail
       parameters:
@@ -24,7 +24,14 @@ paths:
       responses:
         '200':
           description: ''
-  /api/users/{id}:
+  /apis/users/me:
+    get:
+      operationId: UsersController_me
+      parameters: []
+      responses:
+        '200':
+          description: ''
+  /apis/users/{id}:
     delete:
       operationId: UsersController_remove
       parameters:
@@ -36,7 +43,7 @@ paths:
       responses:
         '200':
           description: ''
-  /api/auth/credentials/register:
+  /apis/auth/credentials/register:
     post:
       operationId: AuthController_CredentialsRegister
       parameters: []
@@ -49,7 +56,7 @@ paths:
       responses:
         '201':
           description: ''
-  /api/auth/credentials/login:
+  /apis/auth/credentials/login:
     post:
       operationId: AuthController_credentialsLogin
       parameters: []
@@ -62,35 +69,35 @@ paths:
       responses:
         '201':
           description: ''
-  /api/auth/logout:
+  /apis/auth/logout:
     get:
       operationId: AuthController_logout
       parameters: []
       responses:
         '200':
           description: ''
-  /api/auth/refresh-tokens:
+  /apis/auth/refresh-tokens:
     get:
       operationId: AuthController_refreshTokens
       parameters: []
       responses:
         '200':
           description: ''
-  /api/auth/google:
+  /apis/auth/google:
     get:
       operationId: AuthController_googleAuth
       parameters: []
       responses:
         '200':
           description: ''
-  /api/auth/google/callback:
+  /apis/auth/google/callback:
     get:
       operationId: AuthController_googleAuthCallback
       parameters: []
       responses:
         '200':
           description: ''
-  /api/auth/google/success:
+  /apis/auth/google/success:
     get:
       operationId: AuthController_successGoogleAuth
       parameters:

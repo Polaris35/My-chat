@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import Image from 'next/image';
 import { MdSend } from 'react-icons/md';
 
 interface SendMessageButtonProps {

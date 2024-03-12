@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Avatar } from './Avatar';
+import { UiAvatar } from './ui-avatar';
 
 type MessageStatus = 'sended' | 'sending' | 'readed';
 type MessageType = 'recive' | 'send';
@@ -26,7 +26,7 @@ export function Message({
     return (
         <div className={clsx('chat', aligment)}>
             <div className="chat-image avatar">
-                <Avatar url={avatarUrl} size={'small'} />
+                <UiAvatar url={avatarUrl} size={'small'} />
             </div>
             <div className="chat-header">
                 {autor + ' '}

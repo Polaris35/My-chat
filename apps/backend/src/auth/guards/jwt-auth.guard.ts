@@ -6,7 +6,6 @@ import {
     UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { Observable } from 'rxjs';
 import { COOKIE } from 'src/constants';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
@@ -15,12 +14,10 @@ import { JwtService } from '@nestjs/jwt';
 export class JwtAuthGuard implements CanActivate {
     constructor(
         private readonly reflector: Reflector,
-        private jwtService: JwtService,
+        private readonly jwtService: JwtService,
     ) {}
 
-    canActivate(
-        context: ExecutionContext,
-    ): boolean | Promise<boolean> | Observable<boolean> {
+    async canActivate(context: ExecutionContext): Promise<boolean> {
         const _isPublic = isPublic(context, this.reflector);
         if (_isPublic) {
             return true;
@@ -34,13 +31,13 @@ export class JwtAuthGuard implements CanActivate {
         }
 
         try {
-            const sessionInfo = this.jwtService.verifyAsync(token, {
+            const sessionInfo = await this.jwtService.verifyAsync(token, {
                 secret: process.env.JWT_SECRET,
             });
 
             req['user'] = sessionInfo;
-        } catch {
-            throw new UnauthorizedException();
+        } catch (error: any) {
+            throw new UnauthorizedException(error.message);
         }
 
         return true;

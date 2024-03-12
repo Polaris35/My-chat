@@ -2,12 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   rewrites() {
-    return [
+    return {
+      fallback: [
       {
-        source: '/api/:path*',
-        destination: 'https://localhost:3000/api/:path*',
-      },
-    ];
+        source: '/:path*',
+        destination: 'http://localhost:3000/:path*',
+      }],
+    };
   }
 };
 

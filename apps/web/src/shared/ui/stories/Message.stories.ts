@@ -1,8 +1,7 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import avaratImg from './public/avatar-image.png';
 
-import { Message } from '../Message';
+import { Message } from '../message';
 
 const meta: Meta<typeof Message> = {
     component: Message,

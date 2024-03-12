@@ -1,6 +1,5 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { SendMessageButton } from '../SendMessageButton';
+import { SendMessageButton } from '../send-message-button';
 
 const meta: Meta<typeof SendMessageButton> = {
     component: SendMessageButton,

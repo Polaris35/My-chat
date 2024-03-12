@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Avatar } from '../Avatar';
+import { UiAvatar } from '../ui-avatar';
 import avatarImg from './public/avatar-image.png';
 
-const meta: Meta<typeof Avatar> = {
-    component: Avatar,
+const meta: Meta<typeof UiAvatar> = {
+    component: UiAvatar,
     title: 'Components/Avatar',
 };
 
 export default meta;
 
-type Story = StoryObj<typeof Avatar>;
+type Story = StoryObj<typeof UiAvatar>;
 
 export const Small: Story = {
     args: {

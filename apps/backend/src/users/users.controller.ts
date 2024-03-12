@@ -28,6 +28,13 @@ export class UsersController {
         return new UserResponse(user);
     }
 
+    @UseInterceptors(ClassSerializerInterceptor)
+    @Get('me')
+    async me(@CurrentUser('id') id: number) {
+        const user = await this.usersService.findById(id);
+        return new UserResponse(user);
+    }
+
     @Delete(':id')
     remove(@Param('id') id: number, @CurrentUser('id') userId: number) {
         return this.usersService.remove(id, userId);

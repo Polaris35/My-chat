@@ -1,14 +1,14 @@
 import React from 'react';
 import Image from 'next/image';
 
-type AvatarSize = 'small' | 'medium' | 'large';
-export interface AvatarProps {
+type UiAvatarSize = 'small' | 'medium' | 'large';
+export interface UiAvatarProps {
     url: string;
-    size: AvatarSize;
+    size: UiAvatarSize;
     alt?: string;
 }
 
-export function Avatar({ url, size, alt }: AvatarProps) {
+export function UiAvatar({ url, size, alt }: UiAvatarProps) {
     const pxSize = {
         small: 'w-10',
         medium: 'w-16',
