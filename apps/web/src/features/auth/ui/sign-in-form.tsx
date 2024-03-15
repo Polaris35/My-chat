@@ -1,13 +1,23 @@
 import { UiSpinner, UiTextField } from '@/shared/ui';
 import { UseSignInForm } from '../model/use-sign-in-form';
 import { UiButton } from '@/shared/ui/ui-button';
+import { signIn } from 'next-auth/react';
 
 type SignInFormProps = {};
 
 export function SignInForm({}: SignInFormProps) {
     const { register, handleSubmit, isLoading, errorMessage } = UseSignInForm();
     return (
-        <form className="grid items-center gap-2 p-10" onSubmit={handleSubmit}>
+        <form
+            className="grid items-center gap-2 p-10"
+            onSubmit={handleSubmit((data) =>
+                signIn('credentials', {
+                    email: data.email,
+                    password: data.password,
+                    redirect: false,
+                }),
+            )}
+        >
             <UiTextField
                 label="Email"
                 inputProps={{

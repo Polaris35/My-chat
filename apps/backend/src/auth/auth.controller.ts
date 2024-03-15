@@ -1,6 +1,7 @@
 import {
     BadRequestException,
     Body,
+    ClassSerializerInterceptor,
     Controller,
     Get,
     HttpStatus,
@@ -10,6 +11,7 @@ import {
     Res,
     UnauthorizedException,
     UseGuards,
+    UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
@@ -21,6 +23,8 @@ import { GoogleGuard } from './guards/google.guard';
 import { Provider } from '@prisma/client';
 import { TokenService } from './token.service';
 import { COOKIE } from 'src/constants';
+import { ResponseUserWithTokens } from './responses';
+import { ApiOkResponse } from '@nestjs/swagger';
 
 @Public()
 @Controller('auth')
@@ -42,21 +46,28 @@ export class AuthController {
     }
 
     @Post('credentials/login')
+    @UseInterceptors(ClassSerializerInterceptor)
+    @ApiOkResponse({
+        type: ResponseUserWithTokens,
+    })
     async credentialsLogin(
         @Body() dto: LoginDto,
-        @Res() res: Response,
         @UserAgent() agent: string,
-    ) {
-        const tokens = await this.authService.autorize(
+    ): Promise<ResponseUserWithTokens> {
+        console.log(dto);
+        const userWithTokens = await this.authService.autorize(
             dto,
             agent,
             Provider.CREDENTIALS,
         );
-        if (!tokens) {
+        if (!userWithTokens) {
             throw new BadRequestException(`Can't login user`);
         }
 
-        this.setTokensToCookies(tokens, res);
+        return new ResponseUserWithTokens(
+            userWithTokens.user,
+            userWithTokens.tokens,
+        );
     }
 
     @Get('logout')
@@ -138,16 +149,23 @@ export class AuthController {
     }
 
     @Get('google/success')
+    @UseInterceptors(ClassSerializerInterceptor)
+    @ApiOkResponse({
+        type: ResponseUserWithTokens,
+    })
     async successGoogleAuth(
         @Query('token') token: string,
         @UserAgent() agent: string,
-        @Res() res: Response,
-    ) {
-        const tokens = await this.authService.autorize(
+    ): Promise<ResponseUserWithTokens> {
+        const userWithTokens = await this.authService.autorize(
             token,
             agent,
             Provider.GOOGLE,
         );
-        this.setTokensToCookies(tokens, res);
+
+        return new ResponseUserWithTokens(
+            userWithTokens.user,
+            userWithTokens.tokens,
+        );
     }
 }

@@ -11,6 +11,16 @@ export type AuthControllerSuccessGoogleAuthParams = {
     token: string;
 };
 
+export interface ResponseUserWithTokens {
+    accessToken: string;
+    createdAt: string;
+    email: string;
+    id: number;
+    image: string;
+    name: string;
+    refreshToken: string;
+}
+
 export interface LoginDto {
     email: string;
     password: string;
@@ -29,7 +39,7 @@ export const usersControllerFindById = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/apis/users/find/by-id/${id}`, method: 'GET' },
+        { url: `/api/users/find/by-id/${id}`, method: 'GET' },
         options,
     );
 };
@@ -39,7 +49,7 @@ export const usersControllerFindByEmail = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/apis/users/find/by-email/${email}`, method: 'GET' },
+        { url: `/api/users/find/by-email/${email}`, method: 'GET' },
         options,
     );
 };
@@ -47,7 +57,10 @@ export const usersControllerFindByEmail = (
 export const usersControllerMe = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
-    return createInstance({ url: `/apis/users/me`, method: 'GET' }, options);
+    return createInstance<void>(
+        { url: `/api/users/me`, method: 'GET' },
+        options,
+    );
 };
 
 export const usersControllerRemove = (
@@ -55,7 +68,7 @@ export const usersControllerRemove = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/apis/users/${id}`, method: 'DELETE' },
+        { url: `/api/users/${id}`, method: 'DELETE' },
         options,
     );
 };
@@ -66,7 +79,7 @@ export const authControllerCredentialsRegister = (
 ) => {
     return createInstance<void>(
         {
-            url: `/apis/auth/credentials/register`,
+            url: `/api/auth/credentials/register`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: registerDto,
@@ -79,9 +92,9 @@ export const authControllerCredentialsLogin = (
     loginDto: BodyType<LoginDto>,
     options?: SecondParameter<typeof createInstance>,
 ) => {
-    return createInstance<void>(
+    return createInstance<ResponseUserWithTokens>(
         {
-            url: `/apis/auth/credentials/login`,
+            url: `/api/auth/credentials/login`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: loginDto,
@@ -94,7 +107,7 @@ export const authControllerLogout = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/apis/auth/logout`, method: 'GET' },
+        { url: `/api/auth/logout`, method: 'GET' },
         options,
     );
 };
@@ -103,7 +116,7 @@ export const authControllerRefreshTokens = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/apis/auth/refresh-tokens`, method: 'GET' },
+        { url: `/api/auth/refresh-tokens`, method: 'GET' },
         options,
     );
 };
@@ -112,7 +125,7 @@ export const authControllerGoogleAuth = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/apis/auth/google`, method: 'GET' },
+        { url: `/api/auth/google`, method: 'GET' },
         options,
     );
 };
@@ -121,7 +134,7 @@ export const authControllerGoogleAuthCallback = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/apis/auth/google/callback`, method: 'GET' },
+        { url: `/api/auth/google/callback`, method: 'GET' },
         options,
     );
 };
@@ -130,8 +143,8 @@ export const authControllerSuccessGoogleAuth = (
     params: AuthControllerSuccessGoogleAuthParams,
     options?: SecondParameter<typeof createInstance>,
 ) => {
-    return createInstance<void>(
-        { url: `/apis/auth/google/success`, method: 'GET', params },
+    return createInstance<ResponseUserWithTokens>(
+        { url: `/api/auth/google/success`, method: 'GET', params },
         options,
     );
 };

@@ -38,6 +38,7 @@ export class AuthService {
     ) {
         const provider = this.providerFactory.createProvider(provider_type);
         const user = await provider.autorize(dto);
-        return this.tokenService.generateTokens(user, agent);
+        const tokens = await this.tokenService.generateTokens(user, agent);
+        return { user, tokens };
     }
 }

@@ -1,6 +1,7 @@
-import { authControllerGoogleAuth } from '@/shared/api';
-import { useMutation } from '@tanstack/react-query';
 import clsx from 'clsx';
+import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
+import router from 'next/router';
 import { FcGoogle } from 'react-icons/fc';
 
 type GoogleButtonProps = {
@@ -9,21 +10,15 @@ type GoogleButtonProps = {
 };
 
 export function GoogleButton({ className, text }: GoogleButtonProps) {
-    // const mutation = useMutation({
-    //     mutationFn: authControllerGoogleAuth,
-    //     onSuccess(data, variables, context) {
-    //         console.log(data, variables, context);
-    //     },
-    // });
     return (
-        <a
+        <button
             className={clsx(className, 'btn btn-outline btn-secondary')}
             // onClick={() => {
             //     mutation.mutate({});
             // }}
-            href="/apis/auth/google"
+            onClick={() => signIn('google')}
         >
             <FcGoogle /> {text}
-        </a>
+        </button>
     );
 }
