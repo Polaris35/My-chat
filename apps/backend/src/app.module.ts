@@ -9,6 +9,7 @@ import { EventsModule } from './events/events.module';
 import { MessagingModule } from '@messaging/messaging.module';
 import { JwtModule } from '@nestjs/jwt';
 import { options } from '@auth/config';
+import { AttachmentsModule } from './attachments/attachments.module';
 
 @Module({
     imports: [
@@ -21,6 +22,7 @@ import { options } from '@auth/config';
         }),
         JwtModule.registerAsync(options()),
         EventsModule,
+        AttachmentsModule,
     ],
     providers: [
         {

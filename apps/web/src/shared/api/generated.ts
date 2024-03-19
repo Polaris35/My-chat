@@ -7,9 +7,21 @@
  */
 import { createInstance } from './api-instace';
 import type { BodyType } from './api-instace';
-export type AuthControllerSuccessGoogleAuthParams = {
+export type AuthControllerGoogleAuthParams = {
     token: string;
 };
+
+export type AuthControllerRefreshTokensParams = {
+    refreshToken: string;
+};
+
+export type AuthControllerLogoutParams = {
+    refreshToken: string;
+};
+
+export interface Tokens {
+    [key: string]: any;
+}
 
 export interface ResponseUserWithTokens {
     accessToken: string;
@@ -104,47 +116,40 @@ export const authControllerCredentialsLogin = (
 };
 
 export const authControllerLogout = (
+    params: AuthControllerLogoutParams,
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/api/auth/logout`, method: 'GET' },
+        { url: `/api/auth/logout`, method: 'GET', params },
         options,
     );
 };
 
 export const authControllerRefreshTokens = (
+    params: AuthControllerRefreshTokensParams,
     options?: SecondParameter<typeof createInstance>,
 ) => {
-    return createInstance<void>(
-        { url: `/api/auth/refresh-tokens`, method: 'GET' },
+    return createInstance<Tokens>(
+        { url: `/api/auth/refresh-tokens`, method: 'GET', params },
         options,
     );
 };
 
 export const authControllerGoogleAuth = (
-    options?: SecondParameter<typeof createInstance>,
-) => {
-    return createInstance<void>(
-        { url: `/api/auth/google`, method: 'GET' },
-        options,
-    );
-};
-
-export const authControllerGoogleAuthCallback = (
-    options?: SecondParameter<typeof createInstance>,
-) => {
-    return createInstance<void>(
-        { url: `/api/auth/google/callback`, method: 'GET' },
-        options,
-    );
-};
-
-export const authControllerSuccessGoogleAuth = (
-    params: AuthControllerSuccessGoogleAuthParams,
+    params: AuthControllerGoogleAuthParams,
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<ResponseUserWithTokens>(
-        { url: `/api/auth/google/success`, method: 'GET', params },
+        { url: `/api/auth/google`, method: 'GET', params },
+        options,
+    );
+};
+
+export const attachmentsControllerUploadFile = (
+    options?: SecondParameter<typeof createInstance>,
+) => {
+    return createInstance<void>(
+        { url: `/api/attachments/upload/image`, method: 'POST' },
         options,
     );
 };
@@ -176,9 +181,6 @@ export type AuthControllerRefreshTokensResult = NonNullable<
 export type AuthControllerGoogleAuthResult = NonNullable<
     Awaited<ReturnType<typeof authControllerGoogleAuth>>
 >;
-export type AuthControllerGoogleAuthCallbackResult = NonNullable<
-    Awaited<ReturnType<typeof authControllerGoogleAuthCallback>>
->;
-export type AuthControllerSuccessGoogleAuthResult = NonNullable<
-    Awaited<ReturnType<typeof authControllerSuccessGoogleAuth>>
+export type AttachmentsControllerUploadFileResult = NonNullable<
+    Awaited<ReturnType<typeof attachmentsControllerUploadFile>>
 >;

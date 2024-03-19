@@ -1,6 +1,6 @@
 import { Token } from '@prisma/client';
 
-export interface Tokens {
+export class Tokens {
     accessToken: string;
     refreshToken: Token;
 }

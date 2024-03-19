@@ -1,4 +1,5 @@
-import { UiButton } from '@/shared/ui';
+import { ROUTES } from '@/shared/constants';
+import { UiButton, UiLink } from '@/shared/ui';
 import { signIn, signOut, useSession } from 'next-auth/react';
 
 export function HomePage() {
@@ -29,6 +30,7 @@ export function HomePage() {
                     </UiButton>
                 )}
             </div>
+            <UiLink href={ROUTES.PROFILE}>Profile</UiLink>
         </main>
     );
 }

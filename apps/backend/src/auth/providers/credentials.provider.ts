@@ -1,8 +1,8 @@
 import { UsersService } from '@users/users.service';
 import { Provider } from './provider.interface';
-import { LoginDto } from '@auth/dto/login.dto.js';
-import { User } from '@prisma/client';
-import { compareSync } from 'bcrypt';
+import { LoginDto } from '@auth/dto';
+import { Provider as PrismaProvider, User } from '@prisma/client';
+import { compare } from 'bcrypt';
 import { Logger, UnauthorizedException } from '@nestjs/common';
 
 export class CredentialsProvider implements Provider {
@@ -23,7 +23,11 @@ export class CredentialsProvider implements Provider {
                 this.logger.error(err);
                 return null;
             });
-        if (!user || compareSync(user.password, dto.password)) {
+        if (
+            !user ||
+            user.provider !== PrismaProvider.CREDENTIALS ||
+            (await compare(user.password, dto.password))
+        ) {
             throw new UnauthorizedException('Incorrect login or password');
         }
         return user;

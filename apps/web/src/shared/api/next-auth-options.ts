@@ -2,9 +2,13 @@ import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import {
     authControllerCredentialsLogin,
-    authControllerSuccessGoogleAuth,
+    authControllerGoogleAuth,
+    authControllerLogout,
+    authControllerRefreshTokens,
 } from '@/shared/api';
-import type { AuthOptions } from 'next-auth';
+import type { AuthOptions, Session } from 'next-auth';
+import { ROUTES } from '../constants';
+import { DateTime } from 'luxon';
 
 export const authOptions: AuthOptions = {
     // Configure one or more authentication providers
@@ -39,36 +43,56 @@ export const authOptions: AuthOptions = {
             clientSecret: process.env.GOOGLE_SECRET!,
         }),
     ],
+    events: {
+        async signOut({ token }: any) {
+            console.log(token.refreshToken);
+            await authControllerLogout(token.refreshToken);
+        },
+    },
     callbacks: {
         async signIn({ user, account }) {
             if (account?.provider === 'google') {
-                // console.log('google accessToken: ' + account?.access_token);
-                const dbUser = await authControllerSuccessGoogleAuth({
+                const dbUser = await authControllerGoogleAuth({
                     token: account?.access_token!,
                 });
                 if (!user) return false;
-                user = dbUser;
+                Object.assign(user, dbUser);
             }
             return true;
         },
         async session({ session, user, token }: any) {
             session.user = token;
+
             return session;
         },
         async jwt({ token, user, account }: any) {
+            // console.log(token);
+
+            //processing refresh tokens if access token expired
+            if (token.accessToken) {
+                const payload = JSON.parse(
+                    Buffer.from(
+                        token?.accessToken.split('.')[1],
+                        'base64',
+                    ).toString(),
+                );
+                if (DateTime.now() > DateTime.fromSeconds(payload.exp)) {
+                    // console.log('expired');
+                    const tokens = await authControllerRefreshTokens(
+                        token.refreshToken,
+                    );
+                    if (!tokens) {
+                        return { error: "can't refresh tokens" };
+                    }
+                    token.accessToken = tokens.accessToken;
+                    token.refreshToken = tokens.refreshToken;
+                }
+            }
+
             return { ...user, ...token };
         },
     },
     pages: {
-        signIn: '/sign-in',
+        signIn: ROUTES.SINGIN,
     },
 };
-
-// export function auth(
-//     ...args:
-//         | [GetServerSidePropsContext['req'], GetServerSidePropsContext['res']]
-//         | [NextApiRequest, NextApiResponse]
-//         | []
-// ) {
-//     return getServerSession(...args, authOptions);
-// }

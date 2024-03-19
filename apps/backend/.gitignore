@@ -17,6 +17,9 @@ lerna-debug.log*
 .env
 /.env
 
+uploads/files/*
+uploads/images/*
+
 .dependency-cruiser.js
 dependency-graph.png
 

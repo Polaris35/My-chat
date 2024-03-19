@@ -76,34 +76,34 @@ paths:
   /api/auth/logout:
     get:
       operationId: AuthController_logout
-      parameters: []
+      parameters:
+        - name: refreshToken
+          required: true
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: ''
   /api/auth/refresh-tokens:
     get:
       operationId: AuthController_refreshTokens
-      parameters: []
+      parameters:
+        - name: refreshToken
+          required: true
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tokens'
   /api/auth/google:
     get:
-      operationId: AuthController_googleAuth
-      parameters: []
-      responses:
-        '200':
-          description: ''
-  /api/auth/google/callback:
-    get:
-      operationId: AuthController_googleAuthCallback
-      parameters: []
-      responses:
-        '200':
-          description: ''
-  /api/auth/google/success:
-    get:
-      operationId: AuthController_successGoogleAuth
+      operationId: AuthController_GoogleAuth
       parameters:
         - name: token
           required: true
@@ -117,6 +117,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseUserWithTokens'
+  /api/attachments/upload/image:
+    post:
+      operationId: AttachmentsController_uploadFile
+      parameters: []
+      responses:
+        '201':
+          description: ''
 info:
   title: Chat example
   description: The chat API description
@@ -180,3 +187,6 @@ components:
         - name
         - accessToken
         - refreshToken
+    Tokens:
+      type: object
+      properties: {}

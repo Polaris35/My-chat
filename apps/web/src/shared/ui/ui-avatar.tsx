@@ -1,5 +1,4 @@
 import React from 'react';
-import Image from 'next/image';
 
 type UiAvatarSize = 'small' | 'medium' | 'large';
 export interface UiAvatarProps {
@@ -17,8 +16,7 @@ export function UiAvatar({ url, size, alt }: UiAvatarProps) {
     return (
         <div className="avatar">
             <div className={`${pxSize} rounded-full`}>
-                {/* TODO: сделать лоад с бекенда по айдишнику атачмента */}
-                <Image src={url} width={256} height={256} alt={alt!} />
+                <img src={url} width={256} height={256} alt={alt!} />
             </div>
         </div>
     );

@@ -2,6 +2,7 @@ export const ROUTES = {
     HOME: '/',
     SINGIN: '/sign-in',
     SIGNUP: '/sign-up',
+    PROFILE: '/profile',
     // USERS: '/users',
     // CHATS: '/chats',
     // MESSAGES: '/messages',
