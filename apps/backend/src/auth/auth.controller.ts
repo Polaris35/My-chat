@@ -15,9 +15,10 @@ import { Public, UserAgent } from '@common/decorators';
 import { Provider } from '@prisma/client';
 import { TokenService } from './token.service';
 import { ResponseUserWithTokens } from './responses';
-import { ApiOkResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Tokens } from './interfaces';
 
+@ApiTags('Auth')
 @Public()
 @Controller('auth')
 export class AuthController {
@@ -45,7 +46,7 @@ export class AuthController {
         @Body() dto: LoginDto,
         @UserAgent() agent: string,
     ): Promise<ResponseUserWithTokens> {
-        console.log(dto);
+        // console.log(dto);
         const userWithTokens = await this.authService.autorize(
             dto,
             agent,

@@ -13,14 +13,14 @@ export class CreateGroupConversationDto {
         name: 'user id',
         example: 1,
     })
-    @IsNumber()
-    @IsNotEmpty()
-    creatorId: number;
-
     @ApiProperty({
         name: 'avatar id',
         example: 1,
     })
     @IsNumber()
     avatarId: number;
+
+    @IsNotEmpty()
+    @IsString()
+    type: 'private' | 'group';
 }

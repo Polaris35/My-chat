@@ -1,11 +1,15 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { genSaltSync, hashSync } from 'bcrypt';
-import type { User } from '@prisma/client';
+import { AttachmentType, type User } from '@prisma/client';
+import { AttachmentsService } from '@attachments/attachments.service';
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly attachmentService: AttachmentsService,
+    ) {}
 
     async save(dto: Partial<User>) {
         const hashedPassword = dto.password
@@ -46,6 +50,23 @@ export class UsersService {
         return await this.prismaService.user.delete({
             where: { id: id },
             select: { id: true },
+        });
+    }
+
+    async changeImage(id: number, path: string) {
+        const imageId = this.attachmentService.create(
+            path,
+            AttachmentType.IMAGE,
+        );
+        return this.prismaService.user.update({
+            where: {
+                id,
+            },
+            data: {
+                //TODO: поменять что бы не было этой захардкоженой ссылки
+                image: `http://localhost:3000/api/attachmets?id=${imageId}`,
+            },
+            select: { image: true },
         });
     }
 

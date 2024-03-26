@@ -12,8 +12,11 @@ import { WsException } from '@nestjs/websockets';
 @Injectable()
 export class ConversationsService {
     constructor(private readonly prismaService: PrismaService) {}
-    async createGroup(dto: CreateGroupConversationDto): Promise<Conversation> {
-        const { title, creatorId, avatarId } = dto;
+    async createGroup(
+        dto: CreateGroupConversationDto,
+        creatorId: number,
+    ): Promise<Conversation> {
+        const { title, avatarId } = dto;
         const avatarUrl = [avatarId ?? DEFAULT_AVATAR_ID];
         const conversation = await this.prismaService.conversation.create({
             data: {
@@ -121,6 +124,23 @@ export class ConversationsService {
         return this.prismaService.conversation.delete({
             where: { id: idConversation },
             select: { id: true },
+        });
+    }
+
+    getUserConversations(userId: number) {
+        return this.prismaService.participant.findMany({
+            where: {
+                userId,
+            },
+            select: {
+                conversationId: true,
+            },
+        });
+    }
+
+    getConversation(conversationId: number): Promise<Conversation> {
+        return this.prismaService.conversation.findFirst({
+            where: { id: conversationId },
         });
     }
 }

@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -10,13 +9,13 @@ async function bootstrap() {
     app.setGlobalPrefix('api');
 
     const config = new DocumentBuilder()
-        .setTitle('Chat example')
-        .setDescription('The chat API description')
+        .setTitle('My-chat')
         .setVersion('1.0')
+        .addBearerAuth()
         .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);
-    app.use(cookieParser());
+    // app.use(cookieParser());
     await app.listen(3000);
 }
 

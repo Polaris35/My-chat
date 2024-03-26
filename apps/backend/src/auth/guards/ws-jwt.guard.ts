@@ -1,9 +1,4 @@
-import {
-    CanActivate,
-    ExecutionContext,
-    Injectable,
-    Logger,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
 import { Socket } from 'socket.io';
@@ -29,7 +24,7 @@ export class WebsocketJwtGuard implements CanActivate {
 
     static valiateToken(client: Socket) {
         const { authorization } = client.handshake.headers;
-        Logger.log({ authorization });
+        // Logger.log({ authorization });
 
         const token: string = authorization?.split(' ')[1];
         const payload = verify(
