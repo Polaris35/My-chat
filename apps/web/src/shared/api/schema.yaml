@@ -12,6 +12,10 @@ paths:
       responses:
         '200':
           description: ''
+      tags:
+        - Users
+      security:
+        - bearer: []
   /api/users/find/by-email/{email}:
     get:
       operationId: UsersController_findByEmail
@@ -24,6 +28,10 @@ paths:
       responses:
         '200':
           description: ''
+      tags:
+        - Users
+      security:
+        - bearer: []
   /api/users/me:
     get:
       operationId: UsersController_me
@@ -31,6 +39,10 @@ paths:
       responses:
         '200':
           description: ''
+      tags:
+        - Users
+      security:
+        - bearer: []
   /api/users/{id}:
     delete:
       operationId: UsersController_remove
@@ -43,6 +55,108 @@ paths:
       responses:
         '200':
           description: ''
+      tags:
+        - Users
+      security:
+        - bearer: []
+  /api/users/change-image:
+    put:
+      operationId: UsersController_changeImage
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Users
+      security:
+        - bearer: []
+  /api/attachments/upload/image:
+    post:
+      operationId: AttachmentsController_uploadFile
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags:
+        - Attachments
+      security:
+        - bearer: []
+  /api/attachments:
+    get:
+      operationId: AttachmentsController_getFileAttachment
+      parameters:
+        - name: id
+          required: true
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Attachments
+      security:
+        - bearer: []
+  /api/messages:
+    delete:
+      operationId: MessagesController_deleteMessage
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Messages
+      security:
+        - bearer: []
+  /api/conversations/private-conversation:
+    post:
+      operationId: ConversationsController_createPrivateConversation
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '201':
+          description: ''
+      tags:
+        - Conversations
+      security:
+        - bearer: []
+  /api/conversations/group-conversation:
+    post:
+      operationId: ConversationsController_createGroupConversation
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGroupConversationDto'
+      responses:
+        '201':
+          description: ''
+      tags:
+        - Conversations
+      security:
+        - bearer: []
+  /api/conversations/list:
+    get:
+      operationId: ConversationsController_conversationList
+      parameters: []
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Conversations
+      security:
+        - bearer: []
   /api/auth/credentials/register:
     post:
       operationId: AuthController_CredentialsRegister
@@ -56,6 +170,8 @@ paths:
       responses:
         '201':
           description: ''
+      tags:
+        - Auth
   /api/auth/credentials/login:
     post:
       operationId: AuthController_credentialsLogin
@@ -73,6 +189,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseUserWithTokens'
+      tags:
+        - Auth
   /api/auth/logout:
     get:
       operationId: AuthController_logout
@@ -85,6 +203,8 @@ paths:
       responses:
         '200':
           description: ''
+      tags:
+        - Auth
   /api/auth/refresh-tokens:
     get:
       operationId: AuthController_refreshTokens
@@ -101,6 +221,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tokens'
+      tags:
+        - Auth
   /api/auth/google:
     get:
       operationId: AuthController_GoogleAuth
@@ -117,22 +239,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseUserWithTokens'
-  /api/attachments/upload/image:
-    post:
-      operationId: AttachmentsController_uploadFile
-      parameters: []
-      responses:
-        '201':
-          description: ''
+      tags:
+        - Auth
 info:
-  title: Chat example
-  description: The chat API description
+  title: My-chat
+  description: ''
   version: '1.0'
   contact: {}
 tags: []
 servers: []
 components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
   schemas:
+    CreateGroupConversationDto:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Conversation title
+        avatarId:
+          type: number
+          description: id of avatar
+          example: 1
+        type:
+          type: string
+          description: type of conversation
+          example: private
+      required:
+        - title
+        - avatarId
+        - type
     RegisterDto:
       type: object
       properties:
@@ -189,4 +329,11 @@ components:
         - refreshToken
     Tokens:
       type: object
-      properties: {}
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+      required:
+        - accessToken
+        - refreshToken

@@ -16,7 +16,7 @@ import { Provider } from '@prisma/client';
 import { TokenService } from './token.service';
 import { ResponseUserWithTokens } from './responses';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { Tokens } from './interfaces';
+import { Tokens } from './responses/tokens.response';
 
 @ApiTags('Auth')
 @Public()
@@ -71,6 +71,7 @@ export class AuthController {
     }
 
     @Get('refresh-tokens')
+    @UseInterceptors(ClassSerializerInterceptor)
     @ApiOkResponse({
         type: Tokens,
     })
@@ -89,7 +90,7 @@ export class AuthController {
         if (!tokens) {
             throw new UnauthorizedException("Can't update refresh token");
         }
-        return tokens;
+        return new Tokens(tokens);
     }
 
     @Get('google')

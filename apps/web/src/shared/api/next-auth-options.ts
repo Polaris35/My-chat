@@ -6,7 +6,7 @@ import {
     authControllerLogout,
     authControllerRefreshTokens,
 } from '@/shared/api';
-import type { AuthOptions, Session } from 'next-auth';
+import type { AuthOptions } from 'next-auth';
 import { ROUTES } from '../constants';
 import { DateTime } from 'luxon';
 
@@ -62,11 +62,10 @@ export const authOptions: AuthOptions = {
         },
         async session({ session, user, token }: any) {
             session.user = token;
-
             return session;
         },
         async jwt({ token, user, account }: any) {
-            // console.log(token);
+            console.log(token.refreshToken);
 
             //processing refresh tokens if access token expired
             if (token.accessToken) {
@@ -76,11 +75,12 @@ export const authOptions: AuthOptions = {
                         'base64',
                     ).toString(),
                 );
+
                 if (DateTime.now() > DateTime.fromSeconds(payload.exp)) {
-                    // console.log('expired');
-                    const tokens = await authControllerRefreshTokens(
-                        token.refreshToken,
-                    );
+                    const tokens = await authControllerRefreshTokens({
+                        refreshToken: token.refreshToken,
+                    });
+                    console.log(tokens);
                     if (!tokens) {
                         return { error: "can't refresh tokens" };
                     }
@@ -88,7 +88,6 @@ export const authOptions: AuthOptions = {
                     token.refreshToken = tokens.refreshToken;
                 }
             }
-
             return { ...user, ...token };
         },
     },
