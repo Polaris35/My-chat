@@ -1,20 +1,47 @@
-import { Injectable } from '@nestjs/common';
-import { Socket } from 'socket.io';
-import { ConversationsService } from './conversations.service';
-import { EventsGateway } from '@events/events.gateway';
+import { WebsocketJwtGuard } from '@auth/guards/ws-jwt.guard';
+import { SocketAuthMiddleware } from '@auth/ws.middleware';
 import { HandleEvent } from '@events/decorators/handle-event.decorator';
-import { MESSAGING } from '@events/constants';
-import type { Conversation, Message } from '@prisma/client';
+import { UseGuards } from '@nestjs/common';
+import {
+    OnGatewayConnection,
+    OnGatewayDisconnect,
+    OnGatewayInit,
+    WebSocketGateway,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { MESSAGING } from './constants';
+import { Conversation, Message } from '@prisma/client';
+import { ConversationsService } from './conversations.service';
 
-@Injectable()
-export class MessagingEventsHandler {
-    private readonly connections: Map<number, Socket[]>;
+@WebSocketGateway({ namespace: 'events' })
+@UseGuards(WebsocketJwtGuard)
+export class MessagingGateway
+    implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
+    private connections = new Map<number, Socket[]>();
+    constructor(private readonly conversationsService: ConversationsService) {}
 
-    constructor(
-        private readonly conversationsService: ConversationsService,
-        private readonly eventGateway: EventsGateway,
-    ) {
-        this.connections = eventGateway.getConnections();
+    afterInit(server: Server) {
+        server.use(SocketAuthMiddleware());
+    }
+    handleConnection(client: Socket) {
+        const token = WebsocketJwtGuard.valiateToken(client);
+        const existingConnections = this.connections.get(token.id);
+        if (existingConnections) {
+            this.connections.set(token.id, [...existingConnections, client]);
+        }
+        this.connections.set(token.id, [client]);
+    }
+
+    handleDisconnect(client: Socket) {
+        const token = WebsocketJwtGuard.valiateToken(client);
+        const existingConnections = this.connections.get(token.id);
+        if (existingConnections.length === 1) {
+            this.connections.delete(token.id);
+            return;
+        }
+        existingConnections.splice(existingConnections.indexOf(client), 1);
+        this.connections.set(token.id, existingConnections);
     }
 
     @HandleEvent(MESSAGING.NEW_MESSAGE)
@@ -24,7 +51,6 @@ export class MessagingEventsHandler {
 
     @HandleEvent(MESSAGING.NEW_CONVERSATION)
     newConversation(conversation: Conversation) {
-        console.log('new-conversation' + conversation);
         this.sendEvent(
             conversation.id,
             MESSAGING.NEW_CONVERSATION,
@@ -68,9 +94,6 @@ export class MessagingEventsHandler {
     private async sendEvent(conversationId: number, event: string, data: any) {
         const membersIds =
             await this.conversationsService.getMembersIds(conversationId);
-
-        console.log('membersIds: ' + membersIds);
-        console.log('conversationId: ' + conversationId);
 
         membersIds.map((id: number) => {
             if (this.connections.has(id)) {

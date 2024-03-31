@@ -10,7 +10,6 @@ import { MessagingModule } from '@messaging/messaging.module';
 import { JwtModule } from '@nestjs/jwt';
 import { options } from '@auth/config';
 import { AttachmentsModule } from './attachments/attachments.module';
-import { MessagingEventsHandler } from '@messaging/messaging-events.handler';
 
 @Module({
     imports: [
@@ -30,7 +29,6 @@ import { MessagingEventsHandler } from '@messaging/messaging-events.handler';
             provide: APP_GUARD,
             useClass: JwtAuthGuard,
         },
-        MessagingEventsHandler,
     ],
 })
 export class AppModule {}

@@ -5,11 +5,11 @@ import { PrismaModule } from '@prisma/prisma.module';
 import { MessagesController } from './messages.controller';
 import { ConversationsController } from './conversations.controller';
 import { EventsModule } from '@events/events.module';
-import { MessagingEventsHandler } from './messaging-events.handler';
+import { MessagingGateway } from './messaging.gateway';
 
 @Module({
     imports: [PrismaModule, EventsModule],
-    providers: [MessagesService, ConversationsService, MessagingEventsHandler],
+    providers: [MessagesService, ConversationsService, MessagingGateway],
     exports: [MessagesService, ConversationsService],
     controllers: [MessagesController, ConversationsController],
 })

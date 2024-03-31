@@ -9,7 +9,7 @@ import {
 } from '@prisma/client';
 import { DEFAULT_AVATAR_ID } from 'src/constants';
 import { EmmitEvent } from '@events/decorators';
-import { MESSAGING } from '@events/constants';
+import { MESSAGING } from '@messaging/constants';
 import { EventManager } from '@events/event-manager';
 
 @Injectable()
