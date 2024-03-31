@@ -16,6 +16,10 @@
     "storybook": {
       "cache": false,
       "persistent": true
+    },
+    "debug-backend": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

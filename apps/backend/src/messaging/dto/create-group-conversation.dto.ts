@@ -10,16 +10,18 @@ export class CreateGroupConversationDto {
     @IsNotEmpty()
     title: string;
     @ApiProperty({
-        name: 'user id',
-        example: 1,
-    })
-    @ApiProperty({
-        name: 'avatar id',
+        name: 'avatarId',
+        description: 'id of avatar',
         example: 1,
     })
     @IsNumber()
     avatarId: number;
 
+    @ApiProperty({
+        name: 'type',
+        description: 'type of conversation',
+        example: 'private',
+    })
     @IsNotEmpty()
     @IsString()
     type: 'private' | 'group';

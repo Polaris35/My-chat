@@ -1,17 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateGroupConversationDto } from './dto';
 import { PrismaService } from '@prisma/prisma.service';
 import {
     Conversation,
     ConversationType,
+    Participant,
     ParticipantRole,
 } from '@prisma/client';
 import { DEFAULT_AVATAR_ID } from 'src/constants';
-import { WsException } from '@nestjs/websockets';
+import { EmmitEvent } from '@events/decorators';
+import { MESSAGING } from '@events/constants';
+import { EventManager } from '@events/event-manager';
 
 @Injectable()
 export class ConversationsService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        // don't remove this dependency, it's used under the hood by event decorator
+        private readonly eventManager: EventManager,
+    ) {}
+    @EmmitEvent(MESSAGING.NEW_CONVERSATION)
     async createGroup(
         dto: CreateGroupConversationDto,
         creatorId: number,
@@ -24,35 +32,53 @@ export class ConversationsService {
                 creatorId,
                 avatarUrl,
                 type: ConversationType.GROUP,
+                participants: {
+                    create: [
+                        {
+                            userId: creatorId,
+                            role: ParticipantRole.ADMIN,
+                        },
+                    ],
+                },
             },
         });
-        await this.addUserToConversation(
-            creatorId,
-            conversation.id,
-            ParticipantRole.ADMIN,
-        );
+
         return conversation;
     }
 
-    async createPrivateConversation(idCreator: number, idUser: number) {
+    @EmmitEvent(MESSAGING.NEW_CONVERSATION)
+    async createPrivateConversation(
+        idCreator: number,
+        idUser: number,
+    ): Promise<Conversation> {
         const conversation = await this.prismaService.conversation.create({
             data: {
                 title: 'Private conversation',
                 creatorId: idCreator,
                 type: ConversationType.PRIVATE,
+
+                participants: {
+                    create: [
+                        {
+                            userId: idUser,
+                            role: ParticipantRole.ADMIN,
+                        },
+                        {
+                            userId: idCreator,
+                            role: ParticipantRole.ADMIN,
+                        },
+                    ],
+                },
             },
         });
-        [idCreator, idUser].map((id) => {
-            this.addUserToConversation(
-                id,
-                conversation.id,
-                ParticipantRole.ADMIN,
-            );
-        });
+
         return conversation;
     }
 
-    findParticipant(userId: number, conversationId: number) {
+    findParticipant(
+        userId: number,
+        conversationId: number,
+    ): Promise<Participant> {
         return this.prismaService.participant.findFirst({
             where: { AND: [{ userId }, { conversationId }] },
         });
@@ -68,16 +94,20 @@ export class ConversationsService {
             data: { role },
         });
     }
+
     addUserToConversation(
         userId: number,
         conversationId: number,
         role: ParticipantRole = ParticipantRole.USER,
-    ) {
+    ): Promise<Participant> {
         return this.prismaService.participant.create({
             data: {
                 userId,
                 conversationId,
                 role,
+                // dialog: {
+                //     connect: { id: [userId, conversationId] },
+                // },
             },
         });
     }
@@ -111,6 +141,7 @@ export class ConversationsService {
         return members.map((member) => member.userId);
     }
 
+    @EmmitEvent(MESSAGING.DELETE_CONVERSATION)
     async deleteConversation(idConversation: number, idUser: number) {
         const conversation = await this.prismaService.conversation.findFirst({
             where: {
@@ -118,12 +149,13 @@ export class ConversationsService {
             },
         });
         if (!conversation) {
-            throw new WsException("You don't have permision to do that");
+            throw new ForbiddenException(
+                "You don't have permision to delete this conversation",
+            );
         }
 
         return this.prismaService.conversation.delete({
             where: { id: idConversation },
-            select: { id: true },
         });
     }
 
