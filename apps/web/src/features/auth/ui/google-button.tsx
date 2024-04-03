@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import { signIn } from 'next-auth/react';
-import { useSearchParams } from 'next/navigation';
-import router from 'next/router';
+import { useRouter } from 'next/router';
 import { FcGoogle } from 'react-icons/fc';
 
 type GoogleButtonProps = {
@@ -10,13 +9,17 @@ type GoogleButtonProps = {
 };
 
 export function GoogleButton({ className, text }: GoogleButtonProps) {
+    const router = useRouter();
     return (
         <button
             className={clsx(className, 'btn btn-outline btn-secondary')}
-            // onClick={() => {
-            //     mutation.mutate({});
-            // }}
-            onClick={() => signIn('google')}
+            onClick={async () => {
+                const login = await signIn('google', {
+                    callbackUrl: '/',
+                    redirect: false,
+                });
+                router.push(login?.url!);
+            }}
         >
             <FcGoogle /> {text}
         </button>
