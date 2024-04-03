@@ -7,7 +7,12 @@ import { RegisterDto, authControllerCredentialsRegister } from '@/shared/api';
 export function UseSignUpForm() {
     const router = useRouter();
 
-    const { register, handleSubmit } = useForm<RegisterDto>();
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors },
+    } = useForm<RegisterDto>();
 
     const signUpMutation = useMutation({
         mutationFn: authControllerCredentialsRegister,
@@ -21,9 +26,11 @@ export function UseSignUpForm() {
         : undefined;
 
     return {
+        validationErrors: errors,
         register,
         errorMessage,
         handleSubmit: handleSubmit((data) => signUpMutation.mutate(data)),
         isLoading: signUpMutation.isPending,
+        watch,
     };
 }
