@@ -31,7 +31,7 @@ export class ConversationsController {
 
         await this.messagesService.createSystemMessage(
             conversation.id,
-            `${currentUser.email} started conversation`,
+            'Conversation started',
         );
         return conversation;
     }

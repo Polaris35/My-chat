@@ -43,7 +43,6 @@ export function UseSignInForm() {
         register,
         errorMessage,
         validationErrors: errors,
-        // handleSubmit: handleSubmit,
         handleSubmit: handleSubmit((data) => {
             signInMutation.mutate({
                 provider: 'credentials',

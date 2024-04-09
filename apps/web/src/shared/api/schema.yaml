@@ -113,23 +113,23 @@ paths:
         - Messages
       security:
         - bearer: []
-  /api/conversations/private-conversation:
-    post:
+  /api/conversations/private:
+    get:
       operationId: ConversationsController_createPrivateConversation
       parameters:
         - name: userId
           required: true
-          in: path
+          in: query
           schema:
             type: number
       responses:
-        '201':
+        '200':
           description: ''
       tags:
         - Conversations
       security:
         - bearer: []
-  /api/conversations/group-conversation:
+  /api/conversations/group:
     post:
       operationId: ConversationsController_createGroupConversation
       parameters: []
@@ -153,6 +153,10 @@ paths:
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationListResponse'
       tags:
         - Conversations
       security:
@@ -261,18 +265,65 @@ components:
         title:
           type: string
           description: Conversation title
-        avatarId:
-          type: number
-          description: id of avatar
-          example: 1
-        type:
+          example: group conversation title
+        avatarUrl:
           type: string
-          description: type of conversation
-          example: private
+          description: avatar url
+          example: http://example.com/1
       required:
         - title
-        - avatarId
+        - avatarUrl
+    ConversationResponse:
+      type: object
+      properties:
+        id:
+          type: number
+        title:
+          type: string
+        avatarUrl:
+          type: string
+        type:
+          type: string
+        senderName:
+          type: string
+        message:
+          type: string
+        time:
+          format: date-time
+          type: string
+        messageCount:
+          type: number
+        messageType:
+          type: string
+          enum:
+            - STANDALONE_MESSAGE
+            - SHARED_MESSAGE
+            - ANSWERED_MESSAGE
+            - SYSTEM_MESSAGE
+          example:
+            - STANDALONE_MESSAGE
+            - SHARED_MESSAGE
+            - ANSWERED_MESSAGE
+            - SYSTEM_MESSAGE
+      required:
+        - id
+        - title
+        - avatarUrl
         - type
+        - senderName
+        - message
+        - time
+        - messageCount
+        - messageType
+    ConversationListResponse:
+      type: object
+      properties:
+        conversations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConversationResponse'
+      required:
+        - conversations
     RegisterDto:
       type: object
       properties:

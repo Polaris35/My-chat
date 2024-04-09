@@ -18,6 +18,10 @@ export type AuthControllerLogoutParams = {
     refreshToken: string;
 };
 
+export type ConversationsControllerCreatePrivateConversationParams = {
+    userId: number;
+};
+
 export type AttachmentsControllerGetFileAttachmentParams = {
     id: number;
 };
@@ -48,13 +52,38 @@ export interface RegisterDto {
     passwordRepeat: string;
 }
 
+export type ConversationResponseMessageType =
+    (typeof ConversationResponseMessageType)[keyof typeof ConversationResponseMessageType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ConversationResponseMessageType = {
+    STANDALONE_MESSAGE: 'STANDALONE_MESSAGE',
+    SHARED_MESSAGE: 'SHARED_MESSAGE',
+    ANSWERED_MESSAGE: 'ANSWERED_MESSAGE',
+    SYSTEM_MESSAGE: 'SYSTEM_MESSAGE',
+} as const;
+
+export interface ConversationResponse {
+    avatarUrl: string;
+    id: number;
+    message: string;
+    messageCount: number;
+    messageType: ConversationResponseMessageType;
+    senderName: string;
+    time: string;
+    title: string;
+    type: string;
+}
+
+export interface ConversationListResponse {
+    conversations: ConversationResponse[];
+}
+
 export interface CreateGroupConversationDto {
-    /** id of avatar */
-    avatarId: number;
+    /** avatar url */
+    avatarUrl: string;
     /** Conversation title */
     title: string;
-    /** type of conversation */
-    type: string;
 }
 
 type SecondParameter<T extends (...args: any) => any> = Parameters<T>[1];
@@ -136,10 +165,11 @@ export const messagesControllerDeleteMessage = (
 };
 
 export const conversationsControllerCreatePrivateConversation = (
+    params: ConversationsControllerCreatePrivateConversationParams,
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/api/conversations/private-conversation`, method: 'POST' },
+        { url: `/api/conversations/private`, method: 'GET', params },
         options,
     );
 };
@@ -150,7 +180,7 @@ export const conversationsControllerCreateGroupConversation = (
 ) => {
     return createInstance<void>(
         {
-            url: `/api/conversations/group-conversation`,
+            url: `/api/conversations/group`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             data: createGroupConversationDto,
@@ -162,7 +192,7 @@ export const conversationsControllerCreateGroupConversation = (
 export const conversationsControllerConversationList = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
-    return createInstance<void>(
+    return createInstance<ConversationListResponse>(
         { url: `/api/conversations/list`, method: 'GET' },
         options,
     );
