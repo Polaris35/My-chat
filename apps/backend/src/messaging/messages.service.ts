@@ -56,6 +56,7 @@ export class MessagesService {
         });
     }
     delete(id: number) {
+        //TODO: не удалять системное сообщение
         return this.prismaService.message.update({
             where: { id },
             data: {

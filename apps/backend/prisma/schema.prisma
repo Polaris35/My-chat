@@ -8,17 +8,18 @@ datasource db {
 }
 
 model User {
-  id            Int            @id @default(autoincrement())
-  createdAt     DateTime       @default(now()) @map("created_at")
-  email         String         @unique
-  image         String
-  name          String
-  password      String?
-  provider      Provider
-  conversations Conversation[]
-  participants  Participant[]
-  Token         Token[]
-  Message       Message[]
+  id                 Int                  @id @default(autoincrement())
+  createdAt          DateTime             @default(now()) @map("created_at")
+  email              String               @unique
+  image              String
+  name               String
+  password           String?
+  provider           Provider
+  conversations      Conversation[]
+  participants       Participant[]
+  Token              Token[]
+  Message            Message[]
+  messageReadHistory MessageReadHistory[]
 
   @@map("users")
 }
@@ -38,11 +39,11 @@ model Conversation {
   createdAt    DateTime         @default(now()) @map("created_at")
   title        String
   creatorId    Int              @map("creator_id")
-  avatarUrl    Int[]            @map("avatar_url")
+  avatarUrl    String[]         @map("avatar_url")
   type         ConversationType @default(PRIVATE)
   author       User             @relation(fields: [creatorId], references: [id])
   participants Participant[]
-  Message      Message[]
+  messages     Message[]
 
   @@map("conversations")
 }
@@ -67,10 +68,11 @@ model Message {
   createdAt          DateTime    @default(now()) @map("created_at")
   isDeleted          Boolean     @default(false) @map("is_deleted")
 
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
-  sender         User         @relation(fields: [senderId], references: [id])
-  senderId       Int          @map("sender_id")
-  conversationId Int          @map("conversation_id")
+  conversation   Conversation         @relation(fields: [conversationId], references: [id])
+  sender         User                 @relation(fields: [senderId], references: [id])
+  senderId       Int                  @map("sender_id")
+  conversationId Int                  @map("conversation_id")
+  readHistory    MessageReadHistory[]
 
   @@map("messages")
 }
@@ -78,6 +80,9 @@ model Message {
 model MessageReadHistory {
   messageId     Int @map("message_id")
   participantId Int @map("participant_id")
+
+  message     Message @relation(fields: [messageId], references: [id])
+  participant User    @relation(fields: [participantId], references: [id])
 
   @@id([messageId, participantId])
   @@map("message_read_history")

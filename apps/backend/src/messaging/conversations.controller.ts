@@ -3,9 +3,10 @@ import { ConversationsService } from './conversations.service';
 import { CurrentUser } from '@common/decorators';
 import { Conversation } from '@prisma/client';
 import { CreateGroupConversationDto } from './dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { MessagesService } from './messages.service';
 import { JwtPayload } from '@auth/interfaces';
+import { ConversationListResponse } from './responses';
 
 @ApiTags('Conversations')
 @ApiBearerAuth()
@@ -50,13 +51,15 @@ export class ConversationsController {
         );
         return conversation;
     }
+
+    @ApiOkResponse({
+        type: ConversationListResponse,
+    })
     @Get('list')
     async conversationList(@CurrentUser('id') userId: number) {
         const conversationsList =
             await this.conversationsService.getUserConversations(userId);
 
-        return conversationsList.map((idObject) =>
-            this.conversationsService.getConversation(idObject.conversationId),
-        );
+        return conversationsList;
     }
 }
