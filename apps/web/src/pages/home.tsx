@@ -5,7 +5,7 @@ import { signOut } from 'next-auth/react';
 export function HomePage() {
     return (
         <div className="min-h-screen h-full flex">
-            <div className="w-96 min-h-screen">
+            <div className="w-96">
                 <ConversationList />
             </div>
             <div>

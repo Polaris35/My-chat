@@ -11,6 +11,9 @@ import { ROUTES } from '../constants';
 import { DateTime } from 'luxon';
 
 export const authOptions: AuthOptions = {
+    session: {
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+    },
     // Configure one or more authentication providers
     providers: [
         CredentialsProvider({
@@ -45,8 +48,7 @@ export const authOptions: AuthOptions = {
     ],
     events: {
         async signOut({ token }: any) {
-            console.log(token.refreshToken);
-            await authControllerLogout(token.refreshToken);
+            await authControllerLogout({ refreshToken: token.refreshToken });
         },
     },
     callbacks: {
@@ -62,6 +64,7 @@ export const authOptions: AuthOptions = {
         },
         async session({ session, user, token }: any) {
             session.user = token;
+
             return session;
         },
         async jwt({ token, user, account }: any) {

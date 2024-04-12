@@ -1,17 +1,17 @@
 import { useConversationListQuery } from '@/entities/conversation-list/queries';
 import { UiSpinner } from '@/shared/ui';
-import { GiHamburgerMenu } from 'react-icons/gi';
 import { Conversation } from './conversation';
+import { FaPen } from 'react-icons/fa';
+import { FaUser, FaUserGroup } from 'react-icons/fa6';
+import { Drawer } from '@/entities/menu-drawer';
 
 export function ConversationList() {
     const { sessionStatus, data, isLoading } = useConversationListQuery();
 
     return (
-        <div className="flex flex-col border-r border-neutral min-h-screen max-h-screen">
+        <div className="flex flex-col border-r border-neutral min-h-screen max-h-screen relative">
             <div className="flex p-4 gap-4 border-b border-neutral justify-between">
-                <button className="btn btn-neutral rounded-full">
-                    <GiHamburgerMenu size={16} />
-                </button>
+                <Drawer />
                 <label className="input input-bordered flex items-center gap-2 flex-1">
                     <input type="text" className="grow" placeholder="Search" />
                     <svg
@@ -50,6 +50,31 @@ export function ConversationList() {
                     })}
                 </ul>
             )}
+
+            <div className="dropdown dropdown-top dropdown-end absolute right-4 bottom-4">
+                <div
+                    tabIndex={0}
+                    role="button"
+                    className="w-12 h-12 mt-3 btn-circle btn btn-primary text-white"
+                >
+                    <FaPen size={16} />
+                </div>
+                <ul
+                    tabIndex={0}
+                    className="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-48"
+                >
+                    <li>
+                        <button>
+                            <FaUserGroup /> New Group
+                        </button>
+                    </li>
+                    <li>
+                        <button>
+                            <FaUser /> New Message
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </div>
     );
 }
