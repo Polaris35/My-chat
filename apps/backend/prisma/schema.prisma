@@ -11,7 +11,7 @@ model User {
   id                 Int                  @id @default(autoincrement())
   createdAt          DateTime             @default(now()) @map("created_at")
   email              String               @unique
-  image              String
+  image              Int
   name               String
   password           String?
   provider           Provider
@@ -39,7 +39,7 @@ model Conversation {
   createdAt    DateTime         @default(now()) @map("created_at")
   title        String
   creatorId    Int              @map("creator_id")
-  avatarUrl    String[]         @map("avatar_url")
+  avatarIds    Int[]            @map("avatar_url")
   type         ConversationType @default(PRIVATE)
   author       User             @relation(fields: [creatorId], references: [id])
   participants Participant[]

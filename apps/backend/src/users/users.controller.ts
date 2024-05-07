@@ -15,7 +15,7 @@ import { CurrentUser } from '@common/decorators';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { v4 } from 'uuid';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -35,6 +35,20 @@ export class UsersController {
     async findByEmail(@Param('email') email: string) {
         const user = await this.usersService.findByEmail(email);
         return new UserResponse(user);
+    }
+
+    @ApiResponse({
+        isArray: true,
+        type: UserResponse,
+    })
+    @UseInterceptors(ClassSerializerInterceptor)
+    @Get('find/by-part-of-email/:email')
+    async findByPartOfEmail(
+        @CurrentUser('id') userId: number,
+        @Param('email') email: string,
+    ) {
+        const users = await this.usersService.findByPartOfEmail(email, userId);
+        return users.map((user) => new UserResponse(user));
     }
 
     @UseInterceptors(ClassSerializerInterceptor)

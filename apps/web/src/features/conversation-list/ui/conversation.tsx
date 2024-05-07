@@ -1,4 +1,4 @@
-import { ConversationResponseMessageType } from '@/shared/api';
+import { ConversationPreviewResponseMessageType } from '@/shared/api';
 import { UiAvatar } from '@/shared/ui';
 import { DateTime } from 'luxon';
 
@@ -7,7 +7,7 @@ type ConversationProps = {
     senderName: string;
     avatarUrl: string;
     message: string;
-    messageType: ConversationResponseMessageType;
+    messageType: ConversationPreviewResponseMessageType;
     time: string;
     messageCount: number;
 };
@@ -43,7 +43,7 @@ export function Conversation({
                 </div>
                 <div className="text-sm flex">
                     {messageType ===
-                    ConversationResponseMessageType.SYSTEM_MESSAGE ? (
+                    ConversationPreviewResponseMessageType.SYSTEM_MESSAGE ? (
                         <div className="flex-1">
                             <div className="badge badge-neutral truncate max-w-[32ch]">
                                 {message}

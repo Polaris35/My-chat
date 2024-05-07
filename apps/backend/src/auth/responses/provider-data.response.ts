@@ -1,11 +1,9 @@
 export class ResponseProviderData {
     name: string;
-    picture: string;
+    picture: number;
     email: string;
 
-    constructor(data: any) {
-        this.name = data.name;
-        this.picture = data.picture;
-        this.email = data.email;
+    constructor(data: ResponseProviderData) {
+        Object.assign(this, data);
     }
 }

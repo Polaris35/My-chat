@@ -11,14 +11,13 @@ import {
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { v4 } from 'uuid';
 import { AttachmentsService } from './attachments.service';
 import { AttachmentType } from '@prisma/client';
 import { Public } from '@common/decorators';
 import type { Response } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ImageLoader } from '@common/utils';
 
 @ApiTags('Attachments')
 @ApiBearerAuth()
@@ -28,24 +27,7 @@ export class AttachmentsController {
 
     @Public()
     @Post('upload/image')
-    @UseInterceptors(
-        FileInterceptor('file', {
-            storage: diskStorage({
-                destination: 'uploads/images',
-                filename: (req, file, cb) => {
-                    cb(
-                        null,
-                        v4() +
-                            '-' +
-                            file.originalname
-                                .replace('-', '')
-                                .replace(' ', '_'),
-                    );
-                },
-            }),
-            //   fileFilter: imageFileFilter,
-        }),
-    )
+    @UseInterceptors(FileInterceptor('image', ImageLoader))
     uploadFile(@UploadedFile() file: Express.Multer.File) {
         return this.attachmentsService.create(file.path, AttachmentType.IMAGE);
     }

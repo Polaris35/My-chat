@@ -1,8 +1,9 @@
+import { FileUrlUtils } from '@common/utils';
 import { ApiProperty } from '@nestjs/swagger';
 import { $Enums, User } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 
-export class UserResponse implements User {
+export class UserResponse {
     @ApiProperty({})
     id: number;
     @ApiProperty({})
@@ -21,6 +22,9 @@ export class UserResponse implements User {
     provider: $Enums.Provider;
 
     constructor(user: User) {
-        Object.assign(this, user);
+        Object.assign(this, {
+            ...user,
+            image: FileUrlUtils.getFileUrl(user.image),
+        });
     }
 }

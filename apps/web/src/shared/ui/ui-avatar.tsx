@@ -16,7 +16,12 @@ export function UiAvatar({ url, size, alt }: UiAvatarProps) {
     return (
         <div className="avatar">
             <div className={`${pxSize} rounded-full`}>
-                <img src={url} width={256} height={256} alt={alt!} />
+                <img
+                    src={process.env.NEXT_PUBLIC_BASE_URL + url}
+                    width={256}
+                    height={256}
+                    alt={alt!}
+                />
             </div>
         </div>
     );

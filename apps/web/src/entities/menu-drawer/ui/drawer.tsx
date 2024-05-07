@@ -32,12 +32,7 @@ export function Drawer() {
                                 size={'large'}
                                 alt="user avatar"
                             />
-                            {/* <label
-                            htmlFor="my-drawer"
-                            className="btn btn-circle btn-ghost"
-                        >
-                            <RxCross2 size={20} />
-                        </label> */}
+
                             <ThemeButton />
                         </div>
                         <div className="flex justify-between p-2 items-center">

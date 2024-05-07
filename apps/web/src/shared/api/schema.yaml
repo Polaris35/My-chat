@@ -32,6 +32,28 @@ paths:
         - Users
       security:
         - bearer: []
+  /api/users/find/by-part-of-email/{email}:
+    get:
+      operationId: UsersController_findByPartOfEmail
+      parameters:
+        - name: email
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        default:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+      tags:
+        - Users
+      security:
+        - bearer: []
   /api/users/me:
     get:
       operationId: UsersController_me
@@ -114,17 +136,24 @@ paths:
       security:
         - bearer: []
   /api/conversations/private:
-    get:
+    post:
       operationId: ConversationsController_createPrivateConversation
-      parameters:
-        - name: userId
-          required: true
-          in: query
-          schema:
-            type: number
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                userId:
+                  type: number
       responses:
         '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationPreviewResponse'
       tags:
         - Conversations
       security:
@@ -136,19 +165,29 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CreateGroupConversationDto'
+              type: object
+              properties:
+                title:
+                  type: string
+                image:
+                  type: string
+                  format: binary
       responses:
-        '201':
+        '200':
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationPreviewResponse'
       tags:
         - Conversations
       security:
         - bearer: []
   /api/conversations/list:
     get:
-      operationId: ConversationsController_conversationList
+      operationId: ConversationsController_conversationPreviewList
       parameters: []
       responses:
         '200':
@@ -156,7 +195,23 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConversationListResponse'
+                $ref: '#/components/schemas/ConversationPreviewListResponse'
+      tags:
+        - Conversations
+      security:
+        - bearer: []
+  /api/conversations:
+    get:
+      operationId: ConversationsController_getConversationData
+      parameters:
+        - name: id
+          required: true
+          in: query
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
       tags:
         - Conversations
       security:
@@ -259,21 +314,27 @@ components:
       bearerFormat: JWT
       type: http
   schemas:
-    CreateGroupConversationDto:
+    UserResponse:
       type: object
       properties:
-        title:
+        id:
+          type: number
+        createdAt:
+          format: date-time
           type: string
-          description: Conversation title
-          example: group conversation title
-        avatarUrl:
+        email:
           type: string
-          description: avatar url
-          example: http://example.com/1
+        image:
+          type: string
+        name:
+          type: string
       required:
-        - title
-        - avatarUrl
-    ConversationResponse:
+        - id
+        - createdAt
+        - email
+        - image
+        - name
+    ConversationPreviewResponse:
       type: object
       properties:
         id:
@@ -315,13 +376,13 @@ components:
         - time
         - messageCount
         - messageType
-    ConversationListResponse:
+    ConversationPreviewListResponse:
       type: object
       properties:
         conversations:
           type: array
           items:
-            $ref: '#/components/schemas/ConversationResponse'
+            $ref: '#/components/schemas/ConversationPreviewResponse'
       required:
         - conversations
     RegisterDto:

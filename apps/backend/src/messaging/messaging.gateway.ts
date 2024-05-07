@@ -12,6 +12,7 @@ import { Server, Socket } from 'socket.io';
 import { MESSAGING } from './constants';
 import { Conversation, Message } from '@prisma/client';
 import { ConversationsService } from './conversations.service';
+import { ConversationPreviewResponse } from './responses';
 
 @WebSocketGateway({ namespace: 'events' })
 @UseGuards(WebsocketJwtGuard)
@@ -50,7 +51,7 @@ export class MessagingGateway
     }
 
     @HandleEvent(MESSAGING.NEW_CONVERSATION)
-    newConversation(conversation: Conversation) {
+    newConversation(conversation: ConversationPreviewResponse) {
         this.sendEvent(
             conversation.id,
             MESSAGING.NEW_CONVERSATION,

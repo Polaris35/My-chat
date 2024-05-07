@@ -18,8 +18,17 @@ export type AuthControllerLogoutParams = {
     refreshToken: string;
 };
 
-export type ConversationsControllerCreatePrivateConversationParams = {
-    userId: number;
+export type ConversationsControllerGetConversationDataParams = {
+    id: number;
+};
+
+export type ConversationsControllerCreateGroupConversationBody = {
+    image?: Blob;
+    title?: string;
+};
+
+export type ConversationsControllerCreatePrivateConversationBody = {
+    userId?: number;
 };
 
 export type AttachmentsControllerGetFileAttachmentParams = {
@@ -52,38 +61,39 @@ export interface RegisterDto {
     passwordRepeat: string;
 }
 
-export type ConversationResponseMessageType =
-    (typeof ConversationResponseMessageType)[keyof typeof ConversationResponseMessageType];
+export type ConversationPreviewResponseMessageType =
+    (typeof ConversationPreviewResponseMessageType)[keyof typeof ConversationPreviewResponseMessageType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const ConversationResponseMessageType = {
+export const ConversationPreviewResponseMessageType = {
     STANDALONE_MESSAGE: 'STANDALONE_MESSAGE',
     SHARED_MESSAGE: 'SHARED_MESSAGE',
     ANSWERED_MESSAGE: 'ANSWERED_MESSAGE',
     SYSTEM_MESSAGE: 'SYSTEM_MESSAGE',
 } as const;
 
-export interface ConversationResponse {
+export interface ConversationPreviewResponse {
     avatarUrl: string;
     id: number;
     message: string;
     messageCount: number;
-    messageType: ConversationResponseMessageType;
+    messageType: ConversationPreviewResponseMessageType;
     senderName: string;
     time: string;
     title: string;
     type: string;
 }
 
-export interface ConversationListResponse {
-    conversations: ConversationResponse[];
+export interface ConversationPreviewListResponse {
+    conversations: ConversationPreviewResponse[];
 }
 
-export interface CreateGroupConversationDto {
-    /** avatar url */
-    avatarUrl: string;
-    /** Conversation title */
-    title: string;
+export interface UserResponse {
+    createdAt: string;
+    email: string;
+    id: number;
+    image: string;
+    name: string;
 }
 
 type SecondParameter<T extends (...args: any) => any> = Parameters<T>[1];
@@ -104,6 +114,16 @@ export const usersControllerFindByEmail = (
 ) => {
     return createInstance<void>(
         { url: `/api/users/find/by-email/${email}`, method: 'GET' },
+        options,
+    );
+};
+
+export const usersControllerFindByPartOfEmail = (
+    email: string,
+    options?: SecondParameter<typeof createInstance>,
+) => {
+    return createInstance<UserResponse[]>(
+        { url: `/api/users/find/by-part-of-email/${email}`, method: 'GET' },
         options,
     );
 };
@@ -165,35 +185,68 @@ export const messagesControllerDeleteMessage = (
 };
 
 export const conversationsControllerCreatePrivateConversation = (
-    params: ConversationsControllerCreatePrivateConversationParams,
+    conversationsControllerCreatePrivateConversationBody: BodyType<ConversationsControllerCreatePrivateConversationBody>,
     options?: SecondParameter<typeof createInstance>,
 ) => {
-    return createInstance<void>(
-        { url: `/api/conversations/private`, method: 'GET', params },
-        options,
-    );
-};
-
-export const conversationsControllerCreateGroupConversation = (
-    createGroupConversationDto: BodyType<CreateGroupConversationDto>,
-    options?: SecondParameter<typeof createInstance>,
-) => {
-    return createInstance<void>(
+    return createInstance<ConversationPreviewResponse>(
         {
-            url: `/api/conversations/group`,
+            url: `/api/conversations/private`,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            data: createGroupConversationDto,
+            data: conversationsControllerCreatePrivateConversationBody,
         },
         options,
     );
 };
 
-export const conversationsControllerConversationList = (
+export const conversationsControllerCreateGroupConversation = (
+    conversationsControllerCreateGroupConversationBody: BodyType<ConversationsControllerCreateGroupConversationBody>,
     options?: SecondParameter<typeof createInstance>,
 ) => {
-    return createInstance<ConversationListResponse>(
+    const formData = new FormData();
+    if (
+        conversationsControllerCreateGroupConversationBody.title !== undefined
+    ) {
+        formData.append(
+            'title',
+            conversationsControllerCreateGroupConversationBody.title,
+        );
+    }
+    if (
+        conversationsControllerCreateGroupConversationBody.image !== undefined
+    ) {
+        formData.append(
+            'image',
+            conversationsControllerCreateGroupConversationBody.image,
+        );
+    }
+
+    return createInstance<ConversationPreviewResponse>(
+        {
+            url: `/api/conversations/group`,
+            method: 'POST',
+            headers: { 'Content-Type': 'multipart/form-data' },
+            data: formData,
+        },
+        options,
+    );
+};
+
+export const conversationsControllerConversationPreviewList = (
+    options?: SecondParameter<typeof createInstance>,
+) => {
+    return createInstance<ConversationPreviewListResponse>(
         { url: `/api/conversations/list`, method: 'GET' },
+        options,
+    );
+};
+
+export const conversationsControllerGetConversationData = (
+    params: ConversationsControllerGetConversationDataParams,
+    options?: SecondParameter<typeof createInstance>,
+) => {
+    return createInstance<void>(
+        { url: `/api/conversations`, method: 'GET', params },
         options,
     );
 };
@@ -264,6 +317,9 @@ export type UsersControllerFindByIdResult = NonNullable<
 export type UsersControllerFindByEmailResult = NonNullable<
     Awaited<ReturnType<typeof usersControllerFindByEmail>>
 >;
+export type UsersControllerFindByPartOfEmailResult = NonNullable<
+    Awaited<ReturnType<typeof usersControllerFindByPartOfEmail>>
+>;
 export type UsersControllerMeResult = NonNullable<
     Awaited<ReturnType<typeof usersControllerMe>>
 >;
@@ -291,8 +347,11 @@ export type ConversationsControllerCreatePrivateConversationResult =
 export type ConversationsControllerCreateGroupConversationResult = NonNullable<
     Awaited<ReturnType<typeof conversationsControllerCreateGroupConversation>>
 >;
-export type ConversationsControllerConversationListResult = NonNullable<
-    Awaited<ReturnType<typeof conversationsControllerConversationList>>
+export type ConversationsControllerConversationPreviewListResult = NonNullable<
+    Awaited<ReturnType<typeof conversationsControllerConversationPreviewList>>
+>;
+export type ConversationsControllerGetConversationDataResult = NonNullable<
+    Awaited<ReturnType<typeof conversationsControllerGetConversationData>>
 >;
 export type AuthControllerCredentialsRegisterResult = NonNullable<
     Awaited<ReturnType<typeof authControllerCredentialsRegister>>

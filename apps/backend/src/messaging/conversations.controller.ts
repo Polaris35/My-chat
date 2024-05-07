@@ -1,12 +1,31 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+    Body,
+    ClassSerializerInterceptor,
+    Controller,
+    Get,
+    Post,
+    Query,
+    UploadedFile,
+    UseInterceptors,
+} from '@nestjs/common';
 import { ConversationsService } from './conversations.service';
 import { CurrentUser } from '@common/decorators';
-import { Conversation } from '@prisma/client';
-import { CreateGroupConversationDto } from './dto';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiBody,
+    ApiConsumes,
+    ApiOkResponse,
+    ApiTags,
+} from '@nestjs/swagger';
 import { MessagesService } from './messages.service';
 import { JwtPayload } from '@auth/interfaces';
-import { ConversationListResponse } from './responses';
+import {
+    ConversationPreviewListResponse,
+    ConversationPreviewResponse,
+    ConversationResponse,
+} from './responses';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ImageLoader } from '@common/utils';
 
 @ApiTags('Conversations')
 @ApiBearerAuth()
@@ -17,49 +36,91 @@ export class ConversationsController {
         private readonly messagesService: MessagesService,
     ) {}
 
-    @Get('private')
+    @Post('private')
+    @ApiOkResponse({
+        type: ConversationPreviewResponse,
+    })
+    @ApiBody({
+        schema: {
+            properties: { userId: { type: 'number' } },
+        },
+    })
     async createPrivateConversation(
         @CurrentUser() currentUser: JwtPayload,
-        @Query('userId') userId: number,
-    ): Promise<Conversation> {
-        console.log(userId);
+        @Body('userId') userId: number,
+    ): Promise<ConversationPreviewResponse> {
+        console.log('userId: ', userId);
+        console.log('currentUser: ', currentUser.id);
         const conversation =
             await this.conversationsService.createPrivateConversation(
                 currentUser.id,
-                +userId,
+                userId,
             );
-
         await this.messagesService.createSystemMessage(
             conversation.id,
             'Conversation started',
         );
-        return conversation;
+
+        return this.conversationsService.getPrivateConversationPreview(
+            conversation.id,
+            userId,
+        );
     }
 
     @Post('group')
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                title: { type: 'string' },
+                image: {
+                    type: 'string',
+                    format: 'binary',
+                },
+            },
+        },
+    })
+    @ApiOkResponse({
+        type: ConversationPreviewResponse,
+    })
+    @UseInterceptors(FileInterceptor('image', ImageLoader))
     async createGroupConversation(
         @CurrentUser('id') currentUser: number,
-        @Body() dto: CreateGroupConversationDto,
-    ): Promise<Conversation> {
+        @UploadedFile() file: Express.Multer.File,
+        @Body('title') title: string,
+    ): Promise<ConversationPreviewResponse> {
         const conversation = await this.conversationsService.createGroup(
-            dto,
+            title,
+            file,
             currentUser,
         );
         await this.messagesService.createSystemMessage(
             conversation.id,
             'Conversation created',
         );
-        return conversation;
+        return this.conversationsService.getGroupConversationPreview(
+            conversation.id,
+            currentUser,
+        );
     }
 
     @ApiOkResponse({
-        type: ConversationListResponse,
+        type: ConversationPreviewListResponse,
     })
     @Get('list')
-    async conversationList(@CurrentUser('id') userId: number) {
+    async conversationPreviewList(@CurrentUser('id') userId: number) {
         const conversationsList =
             await this.conversationsService.getUserConversations(userId);
 
         return conversationsList;
+    }
+
+    @Get()
+    @UseInterceptors(ClassSerializerInterceptor)
+    async getConversationData(@Query('id') conversationId: number) {
+        const conversation =
+            await this.conversationsService.getConversation(+conversationId);
+        return new ConversationResponse(conversation);
     }
 }

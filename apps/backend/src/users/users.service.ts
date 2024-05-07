@@ -3,6 +3,7 @@ import { PrismaService } from '@prisma/prisma.service';
 import { genSaltSync, hashSync } from 'bcrypt';
 import { AttachmentType, type User } from '@prisma/client';
 import { AttachmentsService } from '@attachments/attachments.service';
+import { ATTACHMENT } from 'src/constants';
 
 @Injectable()
 export class UsersService {
@@ -28,7 +29,7 @@ export class UsersService {
                 email: dto.email,
                 name: dto.name ?? dto.email,
                 password: hashedPassword,
-                image: dto.image ?? 'default',
+                image: dto.image ?? ATTACHMENT.DEFAULT_USER_AVATAR,
                 provider: dto.provider,
             },
         });
@@ -43,6 +44,27 @@ export class UsersService {
         return this.prismaService.user.findFirst({ where: { id } });
     }
 
+    async findByPartOfEmail(email: string, userId: number) {
+        return this.prismaService.user.findMany({
+            where: {
+                email: {
+                    contains: email,
+                },
+                NOT: {
+                    conversations: {
+                        some: {
+                            participants: {
+                                some: {
+                                    userId: userId,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    }
+
     async remove(id: number, userId: number) {
         if (id !== userId) {
             throw new ForbiddenException();
@@ -54,7 +76,7 @@ export class UsersService {
     }
 
     async changeImage(id: number, path: string) {
-        const imageId = this.attachmentService.create(
+        const imageId = await this.attachmentService.create(
             path,
             AttachmentType.IMAGE,
         );
@@ -63,8 +85,7 @@ export class UsersService {
                 id,
             },
             data: {
-                //TODO: поменять что бы не было этой захардкоженой ссылки
-                image: `http://localhost:3000/api/attachmets?id=${imageId}`,
+                image: imageId.id,
             },
             select: { image: true },
         });

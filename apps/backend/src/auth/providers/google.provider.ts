@@ -12,6 +12,7 @@ import { ResponseProviderData } from '@auth/responses';
 import { LoginDto } from '@auth/dto';
 import { Provider as PrismaProvider, User } from '@prisma/client';
 import { UsersService } from '@users/users.service';
+import { ATTACHMENT } from 'src/constants';
 
 export class GoogleProvider implements Provider {
     private static instance: GoogleProvider;
@@ -67,7 +68,12 @@ export class GoogleProvider implements Provider {
                     `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${token}`,
                 ),
             );
-            return new ResponseProviderData(response.data);
+
+            return new ResponseProviderData({
+                name: response.data.name,
+                picture: ATTACHMENT.DEFAULT_USER_AVATAR,
+                email: response.data.email,
+            });
         } catch (error) {
             console.error('Error checking google token validity: ', error);
             throw new BadRequestException(`can't fetch data by token ${token}`);

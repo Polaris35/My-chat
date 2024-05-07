@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MessageType } from '@prisma/client';
 
-export class ConversationResponse {
+export class ConversationPreviewResponse {
     @ApiProperty()
     id: number;
     @ApiProperty()
@@ -26,13 +26,13 @@ export class ConversationResponse {
     messageType: MessageType;
 }
 
-export class ConversationListResponse {
+export class ConversationPreviewListResponse {
     @ApiProperty({
-        type: ConversationResponse,
+        type: ConversationPreviewResponse,
         isArray: true,
     })
-    conversations: ConversationResponse[];
-    constructor(conversations: ConversationResponse[]) {
+    conversations: ConversationPreviewResponse[];
+    constructor(conversations: ConversationPreviewResponse[]) {
         this.conversations = conversations;
     }
 }
