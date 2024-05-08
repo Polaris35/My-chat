@@ -2,7 +2,10 @@ import {
     Body,
     ClassSerializerInterceptor,
     Controller,
+    Delete,
     Get,
+    Param,
+    ParseIntPipe,
     Post,
     Query,
     UploadedFile,
@@ -122,5 +125,13 @@ export class ConversationsController {
         const conversation =
             await this.conversationsService.getConversation(+conversationId);
         return new ConversationResponse(conversation);
+    }
+
+    @Delete(':id')
+    deleteConversation(
+        @CurrentUser('id') userId: number,
+        @Param('id', ParseIntPipe) id: number,
+    ) {
+        return this.conversationsService.deleteConversation(id, userId);
     }
 }

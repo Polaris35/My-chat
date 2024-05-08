@@ -301,7 +301,25 @@ export class ConversationsService {
     async deleteConversation(idConversation: number, idUser: number) {
         const conversation = await this.prismaService.conversation.findFirst({
             where: {
-                AND: [{ id: idConversation }, { creatorId: idUser }],
+                AND: {
+                    id: idConversation,
+                    OR: [
+                        {
+                            type: ConversationType.GROUP,
+                            creatorId: idUser,
+                        },
+                        {
+                            AND: {
+                                type: ConversationType.PRIVATE,
+                                participants: {
+                                    some: {
+                                        userId: idUser,
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                },
             },
         });
         if (!conversation) {

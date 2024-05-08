@@ -14,7 +14,14 @@ import { Conversation, Message } from '@prisma/client';
 import { ConversationsService } from './conversations.service';
 import { ConversationPreviewResponse } from './responses';
 
-@WebSocketGateway({ namespace: 'events' })
+@WebSocketGateway({
+    namespace: 'events',
+    cors: {
+        origin: ['http://localhost:3001'],
+        credentials: true,
+    },
+    transports: ['websocket', 'polling'],
+})
 @UseGuards(WebsocketJwtGuard)
 export class MessagingGateway
     implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect

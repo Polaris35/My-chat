@@ -1,4 +1,5 @@
 import {
+    ConversationPreviewListResponse,
     ConversationPreviewResponse,
     ConversationsControllerCreatePrivateConversationBody,
     conversationsControllerConversationPreviewList,
@@ -51,16 +52,13 @@ export function addPrivateConversationMutation() {
                 },
             }),
         onSettled: (data) => {
-            queryClient.setQueriesData(
+            queryClient.setQueriesData<ConversationPreviewListResponse>(
                 { queryKey: [CONVERSATION.LIST] },
                 (oldList) => {
                     return {
                         conversations: oldList
-                            ? [
-                                  ...(oldList as ConversationPreviewResponse[]),
-                                  data,
-                              ]
-                            : [data],
+                            ? [...oldList.conversations, data!]
+                            : [data!],
                     };
                 },
             );

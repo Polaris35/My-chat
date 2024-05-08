@@ -1,1 +1,1 @@
-export { UseSocket } from './api/use-socket';
+export { SocketInitializer } from './api/socket-initializer';
