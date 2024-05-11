@@ -30,7 +30,7 @@ export function Conversation({
             ? 'D, hh:mm'
             : 'hh:mm';
     return (
-        <div className="flex items-center gap-4 p-2 border-y border-neutral border-collapse">
+        <div className="flex items-center gap-4 p-2 border-y border-neutral border-collapse mt-[-1px]">
             <UiAvatar url={avatarUrl} size={'medium'} />
             <div className="flex flex-col gap-1 justify-around flex-1">
                 <div className="flex justify-between">

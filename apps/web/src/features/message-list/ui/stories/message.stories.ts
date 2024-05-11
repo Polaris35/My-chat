@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import avaratImg from './public/avatar-image.png';
 
 import { Message } from '../message';
 
 const meta: Meta<typeof Message> = {
     component: Message,
-    title: 'Components/Message',
+    title: 'message-list/Message',
 };
 
 export default meta;
@@ -14,7 +13,7 @@ type Story = StoryObj<typeof Message>;
 
 export const Send: Story = {
     args: {
-        avatarUrl: avaratImg.src,
+        avatarUrl: '/api/attachments/?id=1',
         autor: 'Me',
         time: '12:34',
         message: 'Hello world',
@@ -25,7 +24,7 @@ export const Send: Story = {
 
 export const Recive: Story = {
     args: {
-        avatarUrl: avaratImg.src,
+        avatarUrl: '/api/attachments/?id=1',
         autor: 'Me',
         time: '12:34',
         message: 'Hello world',
@@ -36,7 +35,7 @@ export const Recive: Story = {
 
 export const BigTextMessage: Story = {
     args: {
-        avatarUrl: avaratImg.src,
+        avatarUrl: '/api/attachments/?id=1',
         autor: 'Me',
         time: '12:34',
         message:

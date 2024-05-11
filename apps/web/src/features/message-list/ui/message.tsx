@@ -1,5 +1,5 @@
+import { UiAvatar } from '@/shared/ui';
 import clsx from 'clsx';
-import { UiAvatar } from './ui-avatar';
 
 type MessageStatus = 'sended' | 'sending' | 'readed';
 type MessageType = 'recive' | 'send';

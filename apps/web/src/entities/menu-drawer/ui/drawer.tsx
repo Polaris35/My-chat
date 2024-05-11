@@ -1,10 +1,11 @@
 import { ROUTES } from '@/shared/constants';
 import { ThemeButton, UiAvatar, UiButton } from '@/shared/ui';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { MdSettings } from 'react-icons/md';
 import { RxHamburgerMenu } from 'react-icons/rx';
 import { Clipboard } from '@/shared/ui';
+import { PiSignOutBold } from 'react-icons/pi';
 
 export function Drawer() {
     const session = useSession();
@@ -44,13 +45,20 @@ export function Drawer() {
                             </div>
                         </div>
                     </div>
-                    <div className="flex flex-col p-2">
+                    <div className="flex flex-col p-2 gap-2">
                         <UiButton
                             className="flex justify-start gap-2 text-lg"
                             variant={'ghost'}
                             onClick={() => router.push(ROUTES.PROFILE)}
                         >
                             <MdSettings size={32} /> Setting
+                        </UiButton>
+                        <UiButton
+                            className="flex justify-start gap-2 text-lg"
+                            onClick={() => signOut()}
+                            variant={'ghost'}
+                        >
+                            <PiSignOutBold size={32} /> Sign out
                         </UiButton>
                     </div>
                 </div>

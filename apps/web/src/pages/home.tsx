@@ -1,8 +1,8 @@
 import { ConversationList } from '@/features/conversation-list';
 import { SocketInitializer } from '@/features/web-socket';
-import { UiButton } from '@/shared/ui';
+import { ConversationField } from '@/widgets/conversation-field';
 import { useQueryClient } from '@tanstack/react-query';
-import { signOut, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
 
 export function HomePage() {
@@ -25,12 +25,7 @@ export function HomePage() {
             <div className="w-96">
                 <ConversationList />
             </div>
-            <div>
-                {/* messaggess fileds */}
-                <UiButton onClick={() => signOut()} variant={'primary'}>
-                    Sign out
-                </UiButton>
-            </div>
+            <ConversationField />
         </div>
     );
 }
