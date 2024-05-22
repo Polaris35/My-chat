@@ -1,21 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { CreateMessageDto } from './dto';
-import { AttachmentType, Message, MessageType } from '@prisma/client';
+import { AttachmentType, MessageType } from '@prisma/client';
 import { SYSTEM_USER_ID } from 'src/constants';
 import { MessageResponse } from './responses';
 import { FileUrlUtils } from '@common/utils';
 import { AttachmentsService } from '@attachments/attachments.service';
+import { MESSAGING } from './constants';
+import { EmmitEvent } from '@events/decorators';
+import { EventManager } from '@events/event-manager';
 
 @Injectable()
 export class MessagesService {
     constructor(
         private readonly prismaService: PrismaService,
         private readonly attachmentService: AttachmentsService,
+        // don't remove this dependency, it's used under the hood by event decorator
+        private readonly eventManager: EventManager,
     ) {}
-    create(senderId: number, dto: CreateMessageDto): Promise<Message> {
-        const { conversationId, message, attachmentList } = dto;
-        return this.prismaService.message.create({
+    @EmmitEvent(MESSAGING.NEW_MESSAGE)
+    async create(
+        senderId: number,
+        dto: CreateMessageDto,
+    ): Promise<MessageResponse> {
+        const message = await this.prismaService.message.create({
             data: {
                 sender: {
                     connect: {
@@ -24,13 +32,63 @@ export class MessagesService {
                 },
                 conversation: {
                     connect: {
-                        id: conversationId,
+                        id: dto.conversationId,
                     },
                 },
-                message,
-                attachmentList: attachmentList ?? undefined,
+                message: dto.message,
+                attachmentList: dto.attachmentList ?? undefined,
+            },
+            select: {
+                id: true,
+                message: true,
+                type: true,
+                attachmentList: true,
+                createdAt: true,
+                referenceMessageId: true,
+                conversationId: true,
+                sender: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                    },
+                },
+
+                _count: {
+                    select: {
+                        readHistory: {
+                            where: {
+                                participantId: senderId,
+                            },
+                        },
+                    },
+                },
             },
         });
+        let attachmentsType: AttachmentType | null = null;
+
+        if (message.attachmentList.length !== 0) {
+            const attachment = await this.attachmentService.find(
+                message.attachmentList[0],
+            );
+            attachmentsType = attachment.type;
+        }
+
+        return {
+            id: message.id,
+            message: message.message,
+            type: message.type,
+            referenceMessageId: message.referenceMessageId,
+            attachmentList: message.attachmentList,
+            isReaded: message._count.readHistory > 0,
+            conversationId: message.conversationId,
+            createdAt: message.createdAt,
+            attachmentType: attachmentsType,
+
+            senderId: message.sender.id,
+            senderAvatarUrl: FileUrlUtils.getFileUrl(message.sender.image),
+            senderName: message.sender.name,
+        };
     }
 
     async findOne(id: number, userId: number) {
@@ -229,20 +287,64 @@ export class MessagesService {
         };
     }
 
+    @EmmitEvent(MESSAGING.NEW_MESSAGE)
     async createSystemMessage(
         conversationId: number,
-        message: string,
-    ): Promise<Message> {
-        return this.prismaService.message.create({
+        textMessage: string,
+    ): Promise<MessageResponse> {
+        const message = await this.prismaService.message.create({
             data: {
                 senderId: SYSTEM_USER_ID,
                 conversationId,
-                message,
+                message: textMessage,
                 type: MessageType.SYSTEM_MESSAGE,
                 attachmentList: undefined,
             },
+            select: {
+                id: true,
+                message: true,
+                type: true,
+                attachmentList: true,
+                createdAt: true,
+                referenceMessageId: true,
+                conversationId: true,
+                sender: {
+                    select: {
+                        id: true,
+                        name: true,
+                        image: true,
+                    },
+                },
+
+                _count: {
+                    select: {
+                        readHistory: {
+                            where: {
+                                participantId: 1,
+                            },
+                        },
+                    },
+                },
+            },
         });
+
+        return {
+            id: message.id,
+            message: message.message,
+            type: message.type,
+            referenceMessageId: message.referenceMessageId,
+            attachmentList: message.attachmentList,
+            isReaded: false,
+            conversationId: message.conversationId,
+            createdAt: message.createdAt,
+            attachmentType: null,
+
+            senderId: 1,
+            senderAvatarUrl: '',
+            senderName: 'system',
+        };
     }
+    @EmmitEvent(MESSAGING.DELETE_MESSAGE)
     delete(id: number) {
         //TODO: не удалять системное сообщение
         return this.prismaService.message.update({
@@ -250,7 +352,6 @@ export class MessagesService {
             data: {
                 isDeleted: true,
             },
-            select: { id: true },
         });
     }
 }

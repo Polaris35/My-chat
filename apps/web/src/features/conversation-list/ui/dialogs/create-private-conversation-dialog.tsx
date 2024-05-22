@@ -17,9 +17,6 @@ export function CreatePrivateConversationDialog({
     const mutation = addPrivateConversationMutation();
     const { email, setEmail, isLoading, data } = FindUserByPartialEmail();
 
-    if (mutation.isSuccess) {
-        setOpen(false);
-    }
     return (
         <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
@@ -42,19 +39,28 @@ export function CreatePrivateConversationDialog({
                     </Dialog.Description>
                     <div className="flex-1 overflow-y-auto no-scrollbar mt-4">
                         {isLoading ? (
-                            <div className="flex items-center justify-center">
-                                <UiSpinner />
-                            </div>
+                            email.length < 4 ? (
+                                <div className="flex items-center justify-center h-full">
+                                    <p>Put at list 4 characters</p>
+                                </div>
+                            ) : (
+                                <div className="flex items-center justify-center">
+                                    <UiSpinner />
+                                </div>
+                            )
                         ) : (
                             <div className="flex flex-col overflow-y-auto no-scroll">
                                 {data?.map((user) => {
                                     return (
                                         <button
+                                            key={user.id}
                                             onClick={() => {
                                                 // TODO: добавить изменение выбраного диалога на созданый
                                                 mutation.mutate({
                                                     userId: user.id,
                                                 });
+                                                setEmail('');
+                                                setOpen(false);
                                             }}
                                         >
                                             <UserCard

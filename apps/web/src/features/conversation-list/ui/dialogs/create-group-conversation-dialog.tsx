@@ -47,7 +47,7 @@ export function CreateGroupConversationDialog({
                             label={'Conversation title'}
                             inputProps={{
                                 maxLength: 32,
-                                value: title!,
+                                value: title,
                                 onChange: (event) =>
                                     setTitle(event.target.value),
                             }}

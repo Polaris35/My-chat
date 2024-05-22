@@ -18,6 +18,7 @@ import { AttachmentsService } from '@attachments/attachments.service';
 import { ATTACHMENT } from 'src/constants/attachment';
 import { FileUrlUtils } from '@common/utils';
 import { UsersService } from '@users/users.service';
+import { MessagesService } from './messages.service';
 
 @Injectable()
 export class ConversationsService {
@@ -25,6 +26,7 @@ export class ConversationsService {
         private readonly prismaService: PrismaService,
         private readonly attachmentsService: AttachmentsService,
         private readonly usersService: UsersService,
+        private readonly messagesService: MessagesService,
         // don't remove this dependency, it's used under the hood by event decorator
         private readonly eventManager: EventManager,
     ) {}
@@ -58,6 +60,10 @@ export class ConversationsService {
                 },
             },
         });
+        await this.messagesService.createSystemMessage(
+            conversation.id,
+            'Conversation started',
+        );
 
         return conversation;
     }
@@ -87,6 +93,10 @@ export class ConversationsService {
                 },
             },
         });
+        await this.messagesService.createSystemMessage(
+            conversation.id,
+            'Conversation started',
+        );
 
         return conversation;
     }
@@ -160,11 +170,7 @@ export class ConversationsService {
         const conversation = await this.prismaService.conversation.findFirst({
             where: {
                 id: idConversation,
-                participants: {
-                    some: {
-                        userId: idUser,
-                    },
-                },
+                participants: { some: { userId: idUser } },
             },
             select: {
                 id: true,
@@ -174,6 +180,21 @@ export class ConversationsService {
                 _count: {
                     select: {
                         messages: true,
+                    },
+                },
+                participants: {
+                    where: {
+                        userId: {
+                            not: idUser,
+                        },
+                    },
+                    select: {
+                        member: {
+                            select: {
+                                name: true,
+                                image: true,
+                            },
+                        },
                     },
                 },
                 messages: {
@@ -206,12 +227,12 @@ export class ConversationsService {
             },
         });
 
-        const companion = await this.usersService.findById(idUser);
-
         return {
             id: conversation.id,
-            title: companion.name,
-            avatarUrl: FileUrlUtils.getFileUrl(companion.image),
+            title: conversation.participants[0].member.name,
+            avatarUrl: FileUrlUtils.getFileUrl(
+                conversation.participants[0].member.image,
+            ),
             type: conversation.type,
             senderName: conversation.messages[0].sender.name,
             message: conversation.messages[0].message,
@@ -496,97 +517,4 @@ export class ConversationsService {
             };
         });
     }
-
-    // async getConversation(
-    //     conversationId: number,
-    // ): Promise<ConversationResponse> {
-    //     const rawData = await this.prismaService.conversation.findFirst({
-    //         where: {
-    //             id: conversationId,
-    //             messages: {
-    //                 some: {
-    //                     isDeleted: false,
-    //                 },
-    //             },
-    //         },
-    //         select: {
-    //             id: true,
-    //             createdAt: true,
-    //             title: true,
-    //             creatorId: true,
-    //             avatarIds: true,
-    //             type: true,
-    //             participants: {
-    //                 take: 15,
-    //                 select: {
-    //                     member: {
-    //                         select: {
-    //                             id: true,
-    //                             name: true,
-    //                             image: true,
-    //                         },
-    //                     },
-    //                     role: true,
-    //                 },
-    //             },
-    //             messages: {
-    //                 // distinct: ['conversationId'], // Ensures only unique conversations are returned
-    //                 orderBy: { createdAt: 'desc' },
-    //                 take: 15,
-    //                 select: {
-    //                     id: true,
-    //                     message: true,
-    //                     type: true,
-    //                     attachmentList: true,
-    //                     createdAt: true,
-    //                     referenceMessageId: true,
-    //                     sender: {
-    //                         select: {
-    //                             id: true,
-    //                             name: true,
-    //                             image: true,
-    //                         },
-    //                     },
-    //                     _count: {
-    //                         select: {
-    //                             readHistory: true,
-    //                         },
-    //                     },
-    //                 },
-    //             },
-    //         },
-    //     });
-    //     return {
-    //         id: rawData.id,
-    //         createdAt: rawData.createdAt,
-    //         title: rawData.title,
-    //         creatorId: rawData.creatorId,
-    //         avatarIds: rawData.avatarIds,
-    //         type: rawData.type,
-    //         participants: rawData.participants.map(
-    //             (participant): ParticipantResponse => {
-    //                 return {
-    //                     id: participant.member.id,
-    //                     name: participant.member.name,
-    //                     image: FileUrlUtils.getFileUrl(
-    //                         participant.member.image,
-    //                     ),
-    //                     role: participant.role,
-    //                 };
-    //             },
-    //         ),
-    //         messages: rawData.messages.map((message): MessageResponse => {
-    //             return new MessageResponse({
-    //                 id: message.id,
-    //                 message: message.message,
-    //                 type: message.type,
-    //                 referenceMessageId: message.referenceMessageId,
-    //                 attachmentList: message.attachmentList,
-    //                 senderId: message.sender.id,
-    //                 readCount: message._count.readHistory,
-    //                 createdAt: message.createdAt,
-    //             });
-    //         }),
-    //     };
-    // }
 }

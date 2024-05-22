@@ -10,9 +10,9 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MESSAGING } from './constants';
-import { Conversation, Message } from '@prisma/client';
+import { Conversation, ConversationType, Message } from '@prisma/client';
 import { ConversationsService } from './conversations.service';
-import { ConversationPreviewResponse } from './responses';
+import { MessageResponse } from './responses';
 
 @WebSocketGateway({
     namespace: 'events',
@@ -53,24 +53,44 @@ export class MessagingGateway
     }
 
     @HandleEvent(MESSAGING.NEW_MESSAGE)
-    newMessage(message: Message) {
+    newMessage(message: MessageResponse) {
         this.sendEvent(message.conversationId, MESSAGING.NEW_MESSAGE, message);
     }
 
     @HandleEvent(MESSAGING.NEW_CONVERSATION)
-    newConversation(conversation: ConversationPreviewResponse) {
-        this.sendEvent(
+    async newConversation(conversation: Conversation) {
+        const membersIds = await this.conversationsService.getMembersIds(
             conversation.id,
-            MESSAGING.NEW_CONVERSATION,
-            conversation,
         );
+        console.log('sending messages to: ', membersIds);
+
+        membersIds.map(async (id: number) => {
+            if (!this.connections.has(id)) {
+                return;
+            }
+            const preiewResponse =
+                conversation.type === ConversationType.GROUP
+                    ? await this.conversationsService.getGroupConversationPreview(
+                          conversation.id,
+                          id,
+                      )
+                    : await this.conversationsService.getPrivateConversationPreview(
+                          conversation.id,
+                          id,
+                      );
+
+            this.connections.get(id).map((socket: Socket) => {
+                console.log('sending message to: ', id);
+                socket.emit(MESSAGING.NEW_CONVERSATION, preiewResponse);
+            });
+        });
     }
 
     @HandleEvent(MESSAGING.DELETE_MESSAGE)
     deleteMessage(message: Message) {
         this.sendEvent(
             message.conversationId,
-            MESSAGING.DELETE_CONVERSATION,
+            MESSAGING.DELETE_MESSAGE,
             message.id,
         );
     }
@@ -102,10 +122,12 @@ export class MessagingGateway
     private async sendEvent(conversationId: number, event: string, data: any) {
         const membersIds =
             await this.conversationsService.getMembersIds(conversationId);
+        console.log('sending messages to: ', membersIds);
 
         membersIds.map((id: number) => {
             if (this.connections.has(id)) {
                 this.connections.get(id).map((socket: Socket) => {
+                    console.log('sending message to: ', id);
                     socket.emit(event, data);
                 });
             }

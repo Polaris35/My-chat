@@ -56,10 +56,6 @@ export class ConversationsController {
                 currentUser.id,
                 userId,
             );
-        await this.messagesService.createSystemMessage(
-            conversation.id,
-            'Conversation started',
-        );
 
         return this.conversationsService.getPrivateConversationPreview(
             conversation.id,
@@ -94,10 +90,6 @@ export class ConversationsController {
             title,
             file,
             currentUser,
-        );
-        await this.messagesService.createSystemMessage(
-            conversation.id,
-            'Conversation created',
         );
         return this.conversationsService.getGroupConversationPreview(
             conversation.id,

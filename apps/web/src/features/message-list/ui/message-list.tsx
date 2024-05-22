@@ -17,7 +17,6 @@ export function MessageList({ className }: MessageListProps) {
     const session = useSession();
 
     const { messages } = useContext(CurrentConversationContext);
-    console.log('MessageList, messages: ', messages);
     return (
         <div
             className={clsx(
@@ -27,7 +26,6 @@ export function MessageList({ className }: MessageListProps) {
         >
             {messages.messages.length > 0 ? (
                 messages.messages.map((message) => {
-                    console.log('attachments type: ', message.attachmentType);
                     if (message.type === MessageResponseType.SYSTEM_MESSAGE) {
                         return (
                             <div

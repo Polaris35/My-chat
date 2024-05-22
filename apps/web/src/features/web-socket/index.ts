@@ -1,1 +1,1 @@
-export { SocketInitializer } from './api/socket-initializer';
+export { WebSocketProvider } from './model/web-socket-provider';
