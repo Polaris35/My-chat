@@ -10,8 +10,8 @@ export function UseSignUpForm() {
     const {
         register,
         handleSubmit,
-        watch,
         formState: { errors },
+        watch,
     } = useForm<RegisterDto>();
 
     const signUpMutation = useMutation({

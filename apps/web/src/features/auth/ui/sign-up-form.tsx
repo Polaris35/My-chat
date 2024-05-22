@@ -1,6 +1,7 @@
 import { UiButton, UiSpinner, UiTextField } from '@/shared/ui';
 import { UseSignUpForm } from '../model/use-sign-up-form';
 import { ErrorMessage } from '@hookform/error-message';
+import { useEffect } from 'react';
 
 export function SignUpForm() {
     const {
@@ -11,7 +12,7 @@ export function SignUpForm() {
         watch,
         validationErrors,
     } = UseSignUpForm();
-    const watchFields = watch(['password', 'passwordRepeat']);
+
     return (
         <form className="grid items-center gap-2" onSubmit={handleSubmit}>
             <UiTextField
@@ -43,11 +44,6 @@ export function SignUpForm() {
                             value: 18,
                             message: 'Password must be less than 19 characters',
                         },
-                        validate(value: string) {
-                            return value !== watchFields[1]
-                                ? 'Password and repeat password should be the same'
-                                : false;
-                        },
                     }),
                 }}
             />
@@ -57,6 +53,11 @@ export function SignUpForm() {
                     type: 'password',
                     ...register('passwordRepeat', {
                         required: 'confirm password is required',
+                        validate: (value: string) => {
+                            if (value !== watch('password')) {
+                                return 'Password and repeat password should be the same';
+                            }
+                        },
                     }),
                 }}
             />
