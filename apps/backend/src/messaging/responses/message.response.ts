@@ -1,29 +1,43 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Message, MessageType } from '@prisma/client';
-import { Exclude } from 'class-transformer';
+import { AttachmentType, MessageType } from '@prisma/client';
 
-export class MessageResponse implements Message {
+export class MessageResponse {
     @ApiProperty()
     id: number;
     @ApiProperty()
     message: string;
-    @ApiProperty()
+    @ApiProperty({
+        enum: MessageType,
+        example: Object.keys(MessageType),
+    })
     type: MessageType;
     @ApiProperty()
     referenceMessageId: number;
     @ApiProperty()
-    attachmentList: number[];
+    isReaded: boolean;
+    @ApiProperty()
+    conversationId: number;
+    @ApiProperty()
+    createdAt: Date;
+
     @ApiProperty()
     senderId: number;
     @ApiProperty()
-    readCount: number;
+    senderAvatarUrl: string;
+    @ApiProperty()
+    senderName: string;
 
-    @Exclude()
-    createdAt: Date;
-    @Exclude()
-    isDeleted: boolean;
-    @Exclude()
-    conversationId: number;
+    @ApiProperty({
+        type: Number,
+        isArray: true,
+    })
+    attachmentList: number[];
+    @ApiProperty({
+        enum: AttachmentType,
+        example: Object.keys(AttachmentType),
+    })
+    attachmentType: AttachmentType | null;
+
     constructor(message: Partial<MessageResponse>) {
         Object.assign(this, message);
     }

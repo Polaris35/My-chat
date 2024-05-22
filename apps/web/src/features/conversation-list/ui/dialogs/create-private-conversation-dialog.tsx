@@ -5,7 +5,6 @@ import { ReactNode, useState } from 'react';
 import { RxCross2 } from 'react-icons/rx';
 import { SearchField } from '../search-field';
 import { FindUserByPartialEmail } from '../../api/find-user-by-patrial-email';
-import { Conversation } from '../conversation';
 import { UserCard } from '../user-card';
 
 type CreatePrivateConversationDialogProps = {

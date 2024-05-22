@@ -13,12 +13,9 @@ import { EventManager } from '@events/event-manager';
 import {
     ConversationPreviewListResponse,
     ConversationPreviewResponse,
-    ConversationResponse,
-    MessageResponse,
 } from './responses';
 import { AttachmentsService } from '@attachments/attachments.service';
 import { ATTACHMENT } from 'src/constants/attachment';
-import { ParticipantResponse } from './responses/conversation.response';
 import { FileUrlUtils } from '@common/utils';
 import { UsersService } from '@users/users.service';
 
@@ -417,7 +414,7 @@ export class ConversationsService {
                 userId,
                 dialog: {
                     type: ConversationType.PRIVATE,
-                    participants: { some: { userId: { not: userId } } },
+                    participants: { some: { userId: userId } },
                 },
             },
             select: {
@@ -433,6 +430,11 @@ export class ConversationsService {
                             },
                         },
                         participants: {
+                            where: {
+                                userId: {
+                                    not: userId,
+                                },
+                            },
                             select: {
                                 member: {
                                     select: {
@@ -495,96 +497,96 @@ export class ConversationsService {
         });
     }
 
-    async getConversation(
-        conversationId: number,
-    ): Promise<ConversationResponse> {
-        const rawData = await this.prismaService.conversation.findFirst({
-            where: {
-                id: conversationId,
-                messages: {
-                    some: {
-                        isDeleted: false,
-                    },
-                },
-            },
-            select: {
-                id: true,
-                createdAt: true,
-                title: true,
-                creatorId: true,
-                avatarIds: true,
-                type: true,
-                participants: {
-                    take: 15,
-                    select: {
-                        member: {
-                            select: {
-                                id: true,
-                                name: true,
-                                image: true,
-                            },
-                        },
-                        role: true,
-                    },
-                },
-                messages: {
-                    // distinct: ['conversationId'], // Ensures only unique conversations are returned
-                    orderBy: { createdAt: 'desc' },
-                    take: 15,
-                    select: {
-                        id: true,
-                        message: true,
-                        type: true,
-                        attachmentList: true,
-                        createdAt: true,
-                        referenceMessageId: true,
-                        sender: {
-                            select: {
-                                id: true,
-                                name: true,
-                                image: true,
-                            },
-                        },
-                        _count: {
-                            select: {
-                                readHistory: true,
-                            },
-                        },
-                    },
-                },
-            },
-        });
-        return {
-            id: rawData.id,
-            createdAt: rawData.createdAt,
-            title: rawData.title,
-            creatorId: rawData.creatorId,
-            avatarIds: rawData.avatarIds,
-            type: rawData.type,
-            participants: rawData.participants.map(
-                (participant): ParticipantResponse => {
-                    return {
-                        id: participant.member.id,
-                        name: participant.member.name,
-                        image: FileUrlUtils.getFileUrl(
-                            participant.member.image,
-                        ),
-                        role: participant.role,
-                    };
-                },
-            ),
-            messages: rawData.messages.map((message): MessageResponse => {
-                return new MessageResponse({
-                    id: message.id,
-                    message: message.message,
-                    type: message.type,
-                    referenceMessageId: message.referenceMessageId,
-                    attachmentList: message.attachmentList,
-                    senderId: message.sender.id,
-                    readCount: message._count.readHistory,
-                    createdAt: message.createdAt,
-                });
-            }),
-        };
-    }
+    // async getConversation(
+    //     conversationId: number,
+    // ): Promise<ConversationResponse> {
+    //     const rawData = await this.prismaService.conversation.findFirst({
+    //         where: {
+    //             id: conversationId,
+    //             messages: {
+    //                 some: {
+    //                     isDeleted: false,
+    //                 },
+    //             },
+    //         },
+    //         select: {
+    //             id: true,
+    //             createdAt: true,
+    //             title: true,
+    //             creatorId: true,
+    //             avatarIds: true,
+    //             type: true,
+    //             participants: {
+    //                 take: 15,
+    //                 select: {
+    //                     member: {
+    //                         select: {
+    //                             id: true,
+    //                             name: true,
+    //                             image: true,
+    //                         },
+    //                     },
+    //                     role: true,
+    //                 },
+    //             },
+    //             messages: {
+    //                 // distinct: ['conversationId'], // Ensures only unique conversations are returned
+    //                 orderBy: { createdAt: 'desc' },
+    //                 take: 15,
+    //                 select: {
+    //                     id: true,
+    //                     message: true,
+    //                     type: true,
+    //                     attachmentList: true,
+    //                     createdAt: true,
+    //                     referenceMessageId: true,
+    //                     sender: {
+    //                         select: {
+    //                             id: true,
+    //                             name: true,
+    //                             image: true,
+    //                         },
+    //                     },
+    //                     _count: {
+    //                         select: {
+    //                             readHistory: true,
+    //                         },
+    //                     },
+    //                 },
+    //             },
+    //         },
+    //     });
+    //     return {
+    //         id: rawData.id,
+    //         createdAt: rawData.createdAt,
+    //         title: rawData.title,
+    //         creatorId: rawData.creatorId,
+    //         avatarIds: rawData.avatarIds,
+    //         type: rawData.type,
+    //         participants: rawData.participants.map(
+    //             (participant): ParticipantResponse => {
+    //                 return {
+    //                     id: participant.member.id,
+    //                     name: participant.member.name,
+    //                     image: FileUrlUtils.getFileUrl(
+    //                         participant.member.image,
+    //                     ),
+    //                     role: participant.role,
+    //                 };
+    //             },
+    //         ),
+    //         messages: rawData.messages.map((message): MessageResponse => {
+    //             return new MessageResponse({
+    //                 id: message.id,
+    //                 message: message.message,
+    //                 type: message.type,
+    //                 referenceMessageId: message.referenceMessageId,
+    //                 attachmentList: message.attachmentList,
+    //                 senderId: message.sender.id,
+    //                 readCount: message._count.readHistory,
+    //                 createdAt: message.createdAt,
+    //             });
+    //         }),
+    //     };
+    // }
 }

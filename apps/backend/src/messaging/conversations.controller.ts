@@ -1,13 +1,11 @@
 import {
     Body,
-    ClassSerializerInterceptor,
     Controller,
     Delete,
     Get,
     Param,
     ParseIntPipe,
     Post,
-    Query,
     UploadedFile,
     UseInterceptors,
 } from '@nestjs/common';
@@ -25,7 +23,6 @@ import { JwtPayload } from '@auth/interfaces';
 import {
     ConversationPreviewListResponse,
     ConversationPreviewResponse,
-    ConversationResponse,
 } from './responses';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageLoader } from '@common/utils';
@@ -119,13 +116,13 @@ export class ConversationsController {
         return conversationsList;
     }
 
-    @Get()
-    @UseInterceptors(ClassSerializerInterceptor)
-    async getConversationData(@Query('id') conversationId: number) {
-        const conversation =
-            await this.conversationsService.getConversation(+conversationId);
-        return new ConversationResponse(conversation);
-    }
+    // @Get()
+    // @UseInterceptors(ClassSerializerInterceptor)
+    // async getConversationData(@Query('id') conversationId: number) {
+    //     const conversation =
+    //         await this.conversationsService.getConversation(+conversationId);
+    //     return new ConversationResponse(conversation);
+    // }
 
     @Delete(':id')
     deleteConversation(

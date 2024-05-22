@@ -92,13 +92,52 @@ paths:
         - Users
       security:
         - bearer: []
-  /api/attachments/upload/image:
+  /api/attachments/upload/file:
     post:
       operationId: AttachmentsController_uploadFile
       parameters: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
       responses:
-        '201':
+        default:
           description: ''
+          content:
+            application/json:
+              schema:
+                type: number
+      tags:
+        - Attachments
+      security:
+        - bearer: []
+  /api/attachments/upload/image:
+    post:
+      operationId: AttachmentsController_uploadImage
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        default:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: number
       tags:
         - Attachments
       security:
@@ -119,11 +158,98 @@ paths:
         - Attachments
       security:
         - bearer: []
+  /api/attachments/data:
+    get:
+      operationId: AttachmentsController_getAttachmentsData
+      parameters:
+        - name: ids
+          required: true
+          in: query
+          schema:
+            type: array
+            items:
+              type: number
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttachmentDataResponse'
+      tags:
+        - Attachments
+      security:
+        - bearer: []
   /api/messages:
+    post:
+      operationId: MessagesController_createMessage
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageDto'
+      responses:
+        default:
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+      tags:
+        - Messages
+      security:
+        - bearer: []
     delete:
       operationId: MessagesController_deleteMessage
       parameters:
         - name: id
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Messages
+      security:
+        - bearer: []
+  /api/messages/list/{conversationId}&{skip}:
+    get:
+      operationId: MessagesController_conversationMessagesList
+      parameters:
+        - name: conversationId
+          required: true
+          in: path
+          schema:
+            type: number
+        - name: skip
+          required: true
+          in: path
+          schema:
+            type: number
+      responses:
+        default:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResponse'
+      tags:
+        - Messages
+      security:
+        - bearer: []
+  /api/messages/first/{conversationId}:
+    get:
+      operationId: MessagesController_getFirstMessage
+      parameters:
+        - name: conversationId
           required: true
           in: path
           schema:
@@ -200,13 +326,13 @@ paths:
         - Conversations
       security:
         - bearer: []
-  /api/conversations:
-    get:
-      operationId: ConversationsController_getConversationData
+  /api/conversations/{id}:
+    delete:
+      operationId: ConversationsController_deleteConversation
       parameters:
         - name: id
           required: true
-          in: query
+          in: path
           schema:
             type: number
       responses:
@@ -334,6 +460,103 @@ components:
         - email
         - image
         - name
+    AttachmentDataResponse:
+      type: object
+      properties:
+        id:
+          type: number
+        fileName:
+          type: string
+        format:
+          type: string
+        size:
+          type: number
+      required:
+        - id
+        - fileName
+        - format
+        - size
+    CreateMessageDto:
+      type: object
+      properties:
+        conversationId:
+          type: number
+          description: id of conversation
+          example: 1
+        message:
+          type: string
+        attachmentList:
+          description: list of id attached files
+          example:
+            - 1
+            - 2
+            - 3
+          type: array
+          items:
+            type: number
+      required:
+        - conversationId
+        - message
+        - attachmentList
+    MessageResponse:
+      type: object
+      properties:
+        id:
+          type: number
+        message:
+          type: string
+        type:
+          type: string
+          enum:
+            - STANDALONE_MESSAGE
+            - SHARED_MESSAGE
+            - ANSWERED_MESSAGE
+            - SYSTEM_MESSAGE
+          example:
+            - STANDALONE_MESSAGE
+            - SHARED_MESSAGE
+            - ANSWERED_MESSAGE
+            - SYSTEM_MESSAGE
+        referenceMessageId:
+          type: number
+        isReaded:
+          type: boolean
+        conversationId:
+          type: number
+        createdAt:
+          format: date-time
+          type: string
+        senderId:
+          type: number
+        senderAvatarUrl:
+          type: string
+        senderName:
+          type: string
+        attachmentList:
+          type: array
+          items:
+            type: number
+        attachmentType:
+          type: string
+          enum:
+            - IMAGE
+            - FILE
+          example:
+            - IMAGE
+            - FILE
+      required:
+        - id
+        - message
+        - type
+        - referenceMessageId
+        - isReaded
+        - conversationId
+        - createdAt
+        - senderId
+        - senderAvatarUrl
+        - senderName
+        - attachmentList
+        - attachmentType
     ConversationPreviewResponse:
       type: object
       properties:

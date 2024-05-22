@@ -18,10 +18,6 @@ export type AuthControllerLogoutParams = {
     refreshToken: string;
 };
 
-export type ConversationsControllerGetConversationDataParams = {
-    id: number;
-};
-
 export type ConversationsControllerCreateGroupConversationBody = {
     image?: Blob;
     title?: string;
@@ -31,8 +27,20 @@ export type ConversationsControllerCreatePrivateConversationBody = {
     userId?: number;
 };
 
+export type AttachmentsControllerGetAttachmentsDataParams = {
+    ids: number[];
+};
+
 export type AttachmentsControllerGetFileAttachmentParams = {
     id: number;
+};
+
+export type AttachmentsControllerUploadImageBody = {
+    image?: Blob;
+};
+
+export type AttachmentsControllerUploadFileBody = {
+    file?: Blob;
 };
 
 export interface Tokens {
@@ -86,6 +94,56 @@ export interface ConversationPreviewResponse {
 
 export interface ConversationPreviewListResponse {
     conversations: ConversationPreviewResponse[];
+}
+
+export type MessageResponseType =
+    (typeof MessageResponseType)[keyof typeof MessageResponseType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MessageResponseType = {
+    STANDALONE_MESSAGE: 'STANDALONE_MESSAGE',
+    SHARED_MESSAGE: 'SHARED_MESSAGE',
+    ANSWERED_MESSAGE: 'ANSWERED_MESSAGE',
+    SYSTEM_MESSAGE: 'SYSTEM_MESSAGE',
+} as const;
+
+export type MessageResponseAttachmentType =
+    (typeof MessageResponseAttachmentType)[keyof typeof MessageResponseAttachmentType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MessageResponseAttachmentType = {
+    IMAGE: 'IMAGE',
+    FILE: 'FILE',
+} as const;
+
+export interface MessageResponse {
+    attachmentList: number[];
+    attachmentType: MessageResponseAttachmentType;
+    conversationId: number;
+    createdAt: string;
+    id: number;
+    isReaded: boolean;
+    message: string;
+    referenceMessageId: number;
+    senderAvatarUrl: string;
+    senderId: number;
+    senderName: string;
+    type: MessageResponseType;
+}
+
+export interface CreateMessageDto {
+    /** list of id attached files */
+    attachmentList: number[];
+    /** id of conversation */
+    conversationId: number;
+    message: string;
+}
+
+export interface AttachmentDataResponse {
+    fileName: string;
+    format: string;
+    id: number;
+    size: number;
 }
 
 export interface UserResponse {
@@ -157,10 +215,41 @@ export const usersControllerChangeImage = (
 };
 
 export const attachmentsControllerUploadFile = (
+    attachmentsControllerUploadFileBody: BodyType<AttachmentsControllerUploadFileBody>,
     options?: SecondParameter<typeof createInstance>,
 ) => {
-    return createInstance<void>(
-        { url: `/api/attachments/upload/image`, method: 'POST' },
+    const formData = new FormData();
+    if (attachmentsControllerUploadFileBody.file !== undefined) {
+        formData.append('file', attachmentsControllerUploadFileBody.file);
+    }
+
+    return createInstance<number>(
+        {
+            url: `/api/attachments/upload/file`,
+            method: 'POST',
+            headers: { 'Content-Type': 'multipart/form-data' },
+            data: formData,
+        },
+        options,
+    );
+};
+
+export const attachmentsControllerUploadImage = (
+    attachmentsControllerUploadImageBody: BodyType<AttachmentsControllerUploadImageBody>,
+    options?: SecondParameter<typeof createInstance>,
+) => {
+    const formData = new FormData();
+    if (attachmentsControllerUploadImageBody.image !== undefined) {
+        formData.append('image', attachmentsControllerUploadImageBody.image);
+    }
+
+    return createInstance<number>(
+        {
+            url: `/api/attachments/upload/image`,
+            method: 'POST',
+            headers: { 'Content-Type': 'multipart/form-data' },
+            data: formData,
+        },
         options,
     );
 };
@@ -175,11 +264,57 @@ export const attachmentsControllerGetFileAttachment = (
     );
 };
 
+export const attachmentsControllerGetAttachmentsData = (
+    params: AttachmentsControllerGetAttachmentsDataParams,
+    options?: SecondParameter<typeof createInstance>,
+) => {
+    return createInstance<AttachmentDataResponse[]>(
+        { url: `/api/attachments/data`, method: 'GET', params },
+        options,
+    );
+};
+
+export const messagesControllerCreateMessage = (
+    createMessageDto: BodyType<CreateMessageDto>,
+    options?: SecondParameter<typeof createInstance>,
+) => {
+    return createInstance<MessageResponse>(
+        {
+            url: `/api/messages`,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: createMessageDto,
+        },
+        options,
+    );
+};
+
 export const messagesControllerDeleteMessage = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
         { url: `/api/messages`, method: 'DELETE' },
+        options,
+    );
+};
+
+export const messagesControllerConversationMessagesList = (
+    conversationId: number,
+    skip: number,
+    options?: SecondParameter<typeof createInstance>,
+) => {
+    return createInstance<MessageResponse[]>(
+        { url: `/api/messages/list/${conversationId}&${skip}`, method: 'GET' },
+        options,
+    );
+};
+
+export const messagesControllerGetFirstMessage = (
+    conversationId: number,
+    options?: SecondParameter<typeof createInstance>,
+) => {
+    return createInstance<void>(
+        { url: `/api/messages/first/${conversationId}`, method: 'GET' },
         options,
     );
 };
@@ -241,12 +376,12 @@ export const conversationsControllerConversationPreviewList = (
     );
 };
 
-export const conversationsControllerGetConversationData = (
-    params: ConversationsControllerGetConversationDataParams,
+export const conversationsControllerDeleteConversation = (
+    id: number,
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/api/conversations`, method: 'GET', params },
+        { url: `/api/conversations/${id}`, method: 'DELETE' },
         options,
     );
 };
@@ -332,11 +467,26 @@ export type UsersControllerChangeImageResult = NonNullable<
 export type AttachmentsControllerUploadFileResult = NonNullable<
     Awaited<ReturnType<typeof attachmentsControllerUploadFile>>
 >;
+export type AttachmentsControllerUploadImageResult = NonNullable<
+    Awaited<ReturnType<typeof attachmentsControllerUploadImage>>
+>;
 export type AttachmentsControllerGetFileAttachmentResult = NonNullable<
     Awaited<ReturnType<typeof attachmentsControllerGetFileAttachment>>
 >;
+export type AttachmentsControllerGetAttachmentsDataResult = NonNullable<
+    Awaited<ReturnType<typeof attachmentsControllerGetAttachmentsData>>
+>;
+export type MessagesControllerCreateMessageResult = NonNullable<
+    Awaited<ReturnType<typeof messagesControllerCreateMessage>>
+>;
 export type MessagesControllerDeleteMessageResult = NonNullable<
     Awaited<ReturnType<typeof messagesControllerDeleteMessage>>
+>;
+export type MessagesControllerConversationMessagesListResult = NonNullable<
+    Awaited<ReturnType<typeof messagesControllerConversationMessagesList>>
+>;
+export type MessagesControllerGetFirstMessageResult = NonNullable<
+    Awaited<ReturnType<typeof messagesControllerGetFirstMessage>>
 >;
 export type ConversationsControllerCreatePrivateConversationResult =
     NonNullable<
@@ -350,8 +500,8 @@ export type ConversationsControllerCreateGroupConversationResult = NonNullable<
 export type ConversationsControllerConversationPreviewListResult = NonNullable<
     Awaited<ReturnType<typeof conversationsControllerConversationPreviewList>>
 >;
-export type ConversationsControllerGetConversationDataResult = NonNullable<
-    Awaited<ReturnType<typeof conversationsControllerGetConversationData>>
+export type ConversationsControllerDeleteConversationResult = NonNullable<
+    Awaited<ReturnType<typeof conversationsControllerDeleteConversation>>
 >;
 export type AuthControllerCredentialsRegisterResult = NonNullable<
     Awaited<ReturnType<typeof authControllerCredentialsRegister>>

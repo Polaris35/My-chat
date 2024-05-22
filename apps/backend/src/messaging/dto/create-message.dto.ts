@@ -3,29 +3,23 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateMessageDto {
     @ApiProperty({
-        name: 'sender id',
-        example: 1,
-    })
-    @IsNumber()
-    @IsNotEmpty()
-    senderId: number;
-
-    @ApiProperty({
-        name: 'id of conversation',
+        description: 'id of conversation',
         example: 1,
     })
     @IsNumber()
     @IsNotEmpty()
     conversationId: number;
 
+    @ApiProperty()
     @IsString()
     @MaxLength(244)
-    @IsNotEmpty()
-    message: string;
+    message?: string;
 
     @ApiProperty({
-        name: 'list of id attached files',
-        example: [1, 58, 21, 4],
+        description: 'list of id attached files',
+        example: [1, 2, 3],
+        isArray: true,
+        type: Number,
     })
-    attachmentList: number[];
+    attachmentList?: number[];
 }

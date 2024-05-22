@@ -4,7 +4,8 @@ import { Conversation } from './conversation';
 import { Drawer } from '@/entities/menu-drawer';
 import { CreateConversationButton } from './create-conversation-button';
 import { SearchField } from './search-field';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { CurrentConversationContext } from '@/entities/current-conversation';
 
 export function ConversationList() {
     const [search, setSearch] = useState('');
@@ -43,6 +44,7 @@ export function ConversationList() {
                             return (
                                 <Conversation
                                     key={conversation.id}
+                                    id={conversation.id}
                                     title={conversation.title}
                                     senderName={conversation.senderName}
                                     avatarUrl={conversation.avatarUrl}

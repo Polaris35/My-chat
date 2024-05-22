@@ -1,9 +1,10 @@
 import { UiAvatar } from '@/shared/ui';
 import clsx from 'clsx';
+import { DateTime } from 'luxon';
 
-type MessageStatus = 'sended' | 'sending' | 'readed';
-type MessageType = 'recive' | 'send';
-type MessageBubbleProps = {
+export type MessageStatus = 'sended' | 'sending' | 'readed';
+export type MessageType = 'recive' | 'send';
+export type MessageBubbleProps = {
     avatarUrl: string;
     autor: string;
     time: string;
@@ -29,9 +30,37 @@ export function Message({
                 <UiAvatar url={avatarUrl} size={'small'} />
             </div>
             <div className="chat-header">
-                {autor + ' '}
-                <time className="text-xs opacity-50">{time}</time>
+                {aligment === 'chat-start' ? (
+                    <>
+                        {autor + ' '}
+                        <div
+                            className="tooltip"
+                            data-tip={DateTime.fromISO(time).toFormat(
+                                'dd LLL yyyy, hh:mm',
+                            )}
+                        >
+                            <time className="text-xs opacity-50">
+                                {DateTime.fromISO(time).toFormat('hh:mm')}
+                            </time>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <div
+                            className="tooltip"
+                            data-tip={DateTime.fromISO(time).toFormat(
+                                'dd LLL yyyy, hh:mm',
+                            )}
+                        >
+                            <time className="text-xs opacity-50">
+                                {DateTime.fromISO(time).toFormat('hh:mm')}
+                            </time>
+                        </div>
+                        {' ' + autor}
+                    </>
+                )}
             </div>
+
             <div className="chat-bubble">{message}</div>
             <div className="chat-footer opacity-50">{status}</div>
         </div>

@@ -1,3 +1,4 @@
+import { CurrentConversationProvider } from '@/entities/current-conversation';
 import { ConversationList } from '@/features/conversation-list';
 import { SocketInitializer } from '@/features/web-socket';
 import { ConversationField } from '@/widgets/conversation-field';
@@ -20,12 +21,15 @@ export function HomePage() {
             socket.disconnect();
         };
     }, [session.status]);
+
     return (
-        <div className="min-h-screen h-full flex">
-            <div className="w-96">
-                <ConversationList />
+        <CurrentConversationProvider>
+            <div className="min-h-screen h-full flex">
+                <div className="w-96">
+                    <ConversationList />
+                </div>
+                <ConversationField />
             </div>
-            <ConversationField />
-        </div>
+        </CurrentConversationProvider>
     );
 }
