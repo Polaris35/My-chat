@@ -313,7 +313,7 @@ export const messagesControllerGetFirstMessage = (
     conversationId: number,
     options?: SecondParameter<typeof createInstance>,
 ) => {
-    return createInstance<void>(
+    return createInstance<MessageResponse>(
         { url: `/api/messages/first/${conversationId}`, method: 'GET' },
         options,
     );

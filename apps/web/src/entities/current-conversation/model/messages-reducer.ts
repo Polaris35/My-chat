@@ -10,7 +10,7 @@ export function messagesReducer(state: MessageState, action: MessageAction) {
         case MessageActionKind.ADD:
             return {
                 ...state,
-                messages: [...state.messages, payload],
+                messages: [...state.messages, ...payload],
             };
         case MessageActionKind.DELETE:
             return {

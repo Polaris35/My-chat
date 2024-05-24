@@ -14,7 +14,7 @@ export interface MessageDisplay extends MessageResponse {
 // Define discriminated unions for MessageAction
 interface AddMessageAction {
     type: MessageActionKind.ADD;
-    payload: MessageDisplay;
+    payload: MessageDisplay[];
 }
 
 interface DeleteMessageAction {

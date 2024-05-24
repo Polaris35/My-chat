@@ -74,6 +74,9 @@ export class MessagesController {
         return messagesList;
     }
     @Get('first/:conversationId')
+    @ApiResponse({
+        type: MessageResponse,
+    })
     async getFirstMessage(
         @CurrentUser('id') userId: number,
         @Param('conversationId', ParseIntPipe) id: number,

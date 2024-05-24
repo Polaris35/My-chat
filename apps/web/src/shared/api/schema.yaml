@@ -255,8 +255,12 @@ paths:
           schema:
             type: number
       responses:
-        '200':
+        default:
           description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
       tags:
         - Messages
       security:

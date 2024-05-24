@@ -6,6 +6,8 @@ export type CurrentConversationContextProps = {
     setConversationId: Dispatch<SetStateAction<number | null>>;
     messages: MessageState;
     dispatchMessages: Dispatch<MessageAction>;
+    loadMoreMessages: () => void;
+    hasMoreMessages: boolean;
 };
 
 export const CurrentConversationContext =
@@ -16,4 +18,6 @@ export const CurrentConversationContext =
             messages: [],
         },
         dispatchMessages: () => {},
+        loadMoreMessages: () => {},
+        hasMoreMessages: false,
     });

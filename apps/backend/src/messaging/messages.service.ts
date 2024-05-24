@@ -231,7 +231,7 @@ export class MessagesService {
                 conversationId,
             },
             orderBy: {
-                createdAt: 'desc',
+                createdAt: 'asc',
             },
             select: {
                 id: true,
