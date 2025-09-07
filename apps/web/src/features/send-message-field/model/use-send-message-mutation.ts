@@ -24,7 +24,7 @@ export function UseSendMessageMutation() {
         onSuccess(data) {
             dispatchMessages({
                 type: MessageActionKind.ADD,
-                payload: { ...data, status: 'sended' },
+                payload: [{ ...data, status: 'sended' }],
             });
         },
     });
