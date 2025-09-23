@@ -146,6 +146,10 @@ export interface AttachmentDataResponse {
     size: number;
 }
 
+export interface UpdateUsernameDto {
+    newUsername: string;
+}
+
 export interface UserResponse {
     createdAt: string;
     email: string;
@@ -205,11 +209,26 @@ export const usersControllerRemove = (
     );
 };
 
+export const usersControllerChangeUsername = (
+    updateUsernameDto: BodyType<UpdateUsernameDto>,
+    options?: SecondParameter<typeof createInstance>,
+) => {
+    return createInstance<void>(
+        {
+            url: `/api/users/username`,
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            data: updateUsernameDto,
+        },
+        options,
+    );
+};
+
 export const usersControllerChangeImage = (
     options?: SecondParameter<typeof createInstance>,
 ) => {
     return createInstance<void>(
-        { url: `/api/users/change-image`, method: 'PUT' },
+        { url: `/api/users/image`, method: 'PUT' },
         options,
     );
 };
@@ -460,6 +479,9 @@ export type UsersControllerMeResult = NonNullable<
 >;
 export type UsersControllerRemoveResult = NonNullable<
     Awaited<ReturnType<typeof usersControllerRemove>>
+>;
+export type UsersControllerChangeUsernameResult = NonNullable<
+    Awaited<ReturnType<typeof usersControllerChangeUsername>>
 >;
 export type UsersControllerChangeImageResult = NonNullable<
     Awaited<ReturnType<typeof usersControllerChangeImage>>

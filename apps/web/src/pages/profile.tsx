@@ -1,5 +1,6 @@
+import { ChangeUsernameButton } from '@/features/user-update';
 import { ROUTES } from '@/shared/constants';
-import { UiButton, UiAvatar, UiLink } from '@/shared/ui';
+import { UiButton, UiAvatar } from '@/shared/ui';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { RxCrossCircled } from 'react-icons/rx';
@@ -22,24 +23,6 @@ export function ProfilePage() {
                         <div>
                             <label className="label p-0">
                                 <span className="label-text text-primary">
-                                    Email
-                                </span>
-                            </label>
-                            <span className="label-text">
-                                {session.data?.user?.email}
-                            </span>
-                        </div>
-                        <UiButton
-                            onClick={() => console.log('edit email button')}
-                            variant={'primary'}
-                        >
-                            Edit
-                        </UiButton>
-                    </div>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <label className="label p-0">
-                                <span className="label-text text-primary">
                                     username
                                 </span>
                             </label>
@@ -47,12 +30,14 @@ export function ProfilePage() {
                                 {session.data?.user?.name}
                             </span>
                         </div>
-                        <UiButton
-                            onClick={() => console.log('edit name button')}
-                            variant={'primary'}
+                        <ChangeUsernameButton
+                            onSuccessfullyChange={() => {
+                                console.log('successfully change username');
+                                session.update();
+                            }}
                         >
                             Edit
-                        </UiButton>
+                        </ChangeUsernameButton>
                     </div>
                 </div>
                 <div className="divider"></div>
@@ -67,7 +52,7 @@ export function ProfilePage() {
                 </div>
                 <Link
                     href={ROUTES.HOME}
-                    className="absolute right-[-70px] top-[-35px] flex flex-col justify-center items-center text-sm"
+                    className="absolute right-[-15px] top-[-15px] flex flex-col justify-center items-center text-sm"
                 >
                     <RxCrossCircled size={30} />
                     <span className="uppercase">esc</span>

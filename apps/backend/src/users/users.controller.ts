@@ -8,6 +8,7 @@ import {
     Put,
     UploadedFile,
     BadRequestException,
+    Body,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserResponse } from './responses/user.response';
@@ -16,6 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { v4 } from 'uuid';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { UpdateUsernameDto } from './dto';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -63,7 +65,18 @@ export class UsersController {
         return this.usersService.remove(id, userId);
     }
 
-    @Put('change-image')
+    @Put('username')
+    changeUsername(
+        @Body() updateUsernameDto: UpdateUsernameDto,
+        @CurrentUser('id') userId: number,
+    ) {
+        return this.usersService.changeUsername(
+            updateUsernameDto.newUsername,
+            userId,
+        );
+    }
+
+    @Put('image')
     @UseInterceptors(
         FileInterceptor('image', {
             storage: diskStorage({

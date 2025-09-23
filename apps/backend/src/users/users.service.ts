@@ -91,6 +91,19 @@ export class UsersService {
         });
     }
 
+    async changeUsername(newUsername: string, userId: number) {
+        const newUser = await this.prismaService.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                name: newUsername,
+            },
+        });
+
+        return newUser.name;
+    }
+
     private hashPassword(password: string) {
         return hashSync(password, genSaltSync(10));
     }

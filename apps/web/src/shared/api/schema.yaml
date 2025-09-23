@@ -81,7 +81,24 @@ paths:
         - Users
       security:
         - bearer: []
-  /api/users/change-image:
+  /api/users/username:
+    put:
+      operationId: UsersController_changeUsername
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUsernameDto'
+      responses:
+        '200':
+          description: ''
+      tags:
+        - Users
+      security:
+        - bearer: []
+  /api/users/image:
     put:
       operationId: UsersController_changeImage
       parameters: []
@@ -464,6 +481,14 @@ components:
         - email
         - image
         - name
+    UpdateUsernameDto:
+      type: object
+      properties:
+        newUsername:
+          type: string
+          example: john Doe
+      required:
+        - newUsername
     AttachmentDataResponse:
       type: object
       properties:

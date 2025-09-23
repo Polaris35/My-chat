@@ -67,9 +67,10 @@ export const authOptions: AuthOptions = {
 
             return session;
         },
-        async jwt({ token, user, account }: any) {
-            console.log(token.refreshToken);
-
+        async jwt({ token, user, account, trigger, session }: any) {
+            if (trigger === 'update') {
+                token = { ...token, ...session.user };
+            }
             //processing refresh tokens if access token expired
             if (token.accessToken) {
                 const payload = JSON.parse(
@@ -91,7 +92,7 @@ export const authOptions: AuthOptions = {
                     token.refreshToken = tokens.refreshToken;
                 }
             }
-            return { ...user, ...token };
+            return { ...token };
         },
     },
     pages: {
