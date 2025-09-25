@@ -12,9 +12,9 @@ import { DateTime } from 'luxon';
 
 export const authOptions: AuthOptions = {
     session: {
+        strategy: 'jwt',
         maxAge: 30 * 24 * 60 * 60, // 30 days
     },
-    // Configure one or more authentication providers
     providers: [
         CredentialsProvider({
             credentials: {
@@ -26,19 +26,21 @@ export const authOptions: AuthOptions = {
                 },
             },
             async authorize(credentials) {
-                console.log(credentials);
                 const res = await authControllerCredentialsLogin({
                     email: credentials?.email!,
                     password: credentials?.password!,
-                }).catch((error) => console.log(error));
-                if (res) {
-                    // Any object returned will be saved in `user` property of the JWT
-                    return res;
-                } else {
-                    // If you return null then an error will be displayed advising the user to check their details.
+                }).catch((error) => {
+                    console.log(
+                        "can't authorize user with credentials, error: ",
+                        error.message,
+                    );
+                });
+
+                if (!res) {
                     return null;
-                    // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
                 }
+
+                return res;
             },
         }),
         GoogleProvider({
@@ -47,31 +49,22 @@ export const authOptions: AuthOptions = {
         }),
     ],
     events: {
-        async signOut({ token }: any) {
-            await authControllerLogout({ refreshToken: token.refreshToken });
+        async signOut({ token }) {
+            if (token) {
+                await authControllerLogout({
+                    refreshToken: token.refreshToken,
+                });
+            }
         },
     },
     callbacks: {
-        async signIn({ user, account }) {
-            if (account?.provider === 'google') {
-                const dbUser = await authControllerGoogleAuth({
-                    token: account?.access_token!,
-                });
-                if (!user) return false;
-                Object.assign(user, dbUser);
-            }
-            return true;
-        },
-        async session({ session, user, token }: any) {
+        async session({ session, token }) {
             session.user = token;
-
             return session;
         },
-        async jwt({ token, user, account, trigger, session }: any) {
-            if (trigger === 'update') {
-                token = { ...token, ...session.user };
-            }
-            //processing refresh tokens if access token expired
+
+        async jwt({ token, user, account, trigger, session }) {
+            // processing refresh tokens if access token expired
             if (token.accessToken) {
                 const payload = JSON.parse(
                     Buffer.from(
@@ -90,9 +83,31 @@ export const authOptions: AuthOptions = {
                     }
                     token.accessToken = tokens.accessToken;
                     token.refreshToken = tokens.refreshToken;
+                    console.log('token: ', token);
                 }
             }
-            return { ...token };
+
+            // update session data whe called session.update()
+            if (trigger === 'update' && token && session) {
+                return { ...token, ...session.user };
+            }
+
+            // credentials auth handle
+            if (account?.provider === 'credentials') {
+                return user;
+            }
+            // google auth handle
+            if (account?.provider === 'google' && user) {
+                const dbUser = await authControllerGoogleAuth({
+                    token: account.access_token!,
+                });
+                if (!dbUser) {
+                    throw new Error('Google auth failed, no db user provided');
+                }
+                return dbUser;
+            }
+
+            return token;
         },
     },
     pages: {
