@@ -111,6 +111,6 @@ export const authOptions: AuthOptions = {
         },
     },
     pages: {
-        signIn: ROUTES.SINGIN,
+        signIn: ROUTES.SIGNIN,
     },
 };

@@ -17,7 +17,7 @@ export function UseSignUpForm() {
     const signUpMutation = useMutation({
         mutationFn: authControllerCredentialsRegister,
         onSuccess() {
-            router.push(ROUTES.SINGIN);
+            router.push(ROUTES.SIGNIN);
         },
     });
 

@@ -44,7 +44,7 @@ export function SignUpPage() {
                 </div>
                 <span>
                     {'Already have an account?'}{' '}
-                    <UiLink href={ROUTES.SINGIN}>sign in!</UiLink>{' '}
+                    <UiLink href={ROUTES.SIGNIN}>sign in!</UiLink>{' '}
                 </span>
             </main>
         </div>
